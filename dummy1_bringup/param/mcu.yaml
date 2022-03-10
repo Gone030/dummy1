@@ -1,0 +1,5 @@
+mcu_test_node:
+  ros__parameters:
+    port:
+      name: "/dev/ttyACM0"
+      baudrate: 115200
