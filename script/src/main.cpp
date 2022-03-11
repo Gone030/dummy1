@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <String.h>
 
 int cmd_anguler_vel = 0;
 int cmd_linear_vel = 0;
@@ -13,7 +14,7 @@ void loop()
   String temp = "";
   if (Serial.available())
   {
-    temp = Serial.readStringUntil('\r\n');
+    temp = Serial.readStringUntil('\r');
   }
   int first = temp.indexOf("&");
   int lenth = temp.length();

@@ -3,7 +3,7 @@ from glob import glob
 from setuptools import find_packages
 from setuptools import setup
 
-package_name = 'lidar_test'
+package_name = 'dummy1_bringup'
 
 setup(
     name=package_name,
@@ -32,8 +32,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'lidar_way_node = lidar_test.src.lidar_way_node:main',
-            'mcu_test_node = lidar_test.src.mcu_test_node:main'
+            'lidar_way_node = dummy1_bringup.src.lidar_way_node:main',
+            'mcu_test_node = dummy1_bringup.src.mcu_node:main'
         ],
     },
 )

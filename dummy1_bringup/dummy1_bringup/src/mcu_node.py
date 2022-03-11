@@ -8,7 +8,6 @@ from rclpy.parameter import Parameter
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
-from msg_srv_act_interface.msg import LidarinfoMsg
 
 import math
 import serial
