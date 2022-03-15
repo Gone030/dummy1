@@ -9,6 +9,5 @@ private:
 
 public:
     control(int pwm_pin, int motor_pin_a, int motor_pin_b);
-    ~control();
     void run(int pwm);
 };
