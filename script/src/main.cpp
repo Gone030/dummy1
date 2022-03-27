@@ -35,10 +35,25 @@ float max_rpm_ratio = 0.0;
 float wheel_diameter = 0.07;
 float wheel_distence_x = 0.2;
 float wheel_distance_y = 0.15;
-int pwm_pin = 6;
-int motor_pin_a = 7;
-int motor_pin_b = 8;
-int servo_pin = 9;
+
+#define pwm_pin 7
+#define motor_pin_a 2
+#define motor_pin_b 3
+#define servo_pin 6
+
+#define pA 10
+#define pB 11
+#define pZ 12
+
+#define Count_per_Revolution 12000
+
+volatile signed long cnt_ = 0;
+volatile signed char dir_ = 1;
+int vel_ = 0;
+int temp_ = 0;
+
+unsigned long prev_count_time = 0;
+unsigned long prev_count_tick = 0;
 
 control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
 Calculates calculates(max_rpm, max_rpm_ratio, wheel_diameter, wheel_distence_x,wheel_distance_y);
@@ -55,6 +70,34 @@ void error_loop(){
     digitalWrite(13, !digitalRead(13));
     delay(100);
   }
+}
+
+void encoderCount()
+{
+  dir_ = (digitalRead(pB) == HIGH)? -1: 1; //reverse
+  cnt_ += dir_;
+}
+void encoderReset()
+{
+  cnt_ = 0;
+}
+long returnCount()
+{
+  return cnt_;
+}
+float getRPM()
+{
+  long current_tick = returnCount();
+  unsigned long current_time = micros();
+  unsigned long dt = current_time - prev_count_tick;
+
+  double dtm = (double)dt / 60000000;
+  double delta_tick = current_tick - prev_count_tick;
+
+  prev_count_tick = current_tick;
+  prev_count_time = current_time;
+
+  return (delta_tick / Count_per_Revolution) / dtm; 
 }
 
 void subcmdvel_callback(const void *msgin)

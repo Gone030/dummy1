@@ -3,13 +3,13 @@
 class control
 {
 private:
+    int pwm_duty_;
     int pwm_pin_;
     int motor_pin_A_;
     int motor_pin_B_;
     int servo_pin_;
     float steering_angle_;
-    int pwm_duty_;
-    unsigned int myMap(float val, float minin, float maxin) {
+     unsigned int myMap(float val, float minin, float maxin) {
         return min((unsigned int) max(0., (val - minin) * (float)4095 / (maxin - minin)), 4095);
     }
 
