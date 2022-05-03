@@ -15,6 +15,8 @@
 
 #define Count_per_Revolution 12000
 
+// Calculates calc(int 최대rpm, float 최대rpm비, float 바퀴치수, float 바퀴x거리, float 바퀴y거리)
+
 volatile signed long cnt_ = 0;
 volatile signed char dir_ = 1;
 int vel_ = 0;
@@ -23,6 +25,15 @@ bool flag_ = false;
 
 unsigned long prev_count_time = 0;
 unsigned long prev_count_tick = 0;
+
+double integral; // pid variable
+double derivative;
+double prev_error;
+float kp = 0;
+float ki = 0;
+float kd = 0;
+int min_val = 0;
+int max_val = 1024;
 
 // control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
 
@@ -39,7 +50,7 @@ long returnCount()
 {
   return cnt_;
 }
-float getRPM()
+float getRPM() // 엔코더 rpm 계산 
 {
   long current_tick = returnCount();
   unsigned long current_time = micros();
@@ -54,6 +65,25 @@ float getRPM()
   return (delta_tick / Count_per_Revolution) / dtm ;
 }
 
+double pidcompute(float setpoint, float measured_value) // (계산 rpm , 엔코더 계산 rpm)
+{
+  double error;
+  double pid;
+
+  error = setpoint - measured_value;
+  integral += error;
+  derivative = error - prev_error;
+
+  if(setpoint == 0 && error == 0)
+  {
+    integral = 0;
+    derivative = 0;
+  }
+  pid = (kp * error) + (ki * integral) + (kd * derivative);
+  prev_error = error;
+
+  return constrain(pid, min_val, max_val);
+}
 
 void setup() {
   Serial.begin(115200);
@@ -100,6 +130,4 @@ void loop() {
   //   motor.run(vel);
   digitalWrite(motor_pin_a, HIGH);
   digitalWrite(motor_pin_b, LOW );
-  analogWriteResolution(12);
-  analogWrite(7, map(vel_, 0, 1023, 0, 4095));
 }
