@@ -20,7 +20,7 @@ control::control(int pwm_pin, int motor_pin_a, int motor_pin_b, int servo_pin )
 
 }
 
-void control::run(int pwm_duty)
+void control::run(double pwm_duty)
 {   
     pwm_duty_ = pwm_duty;
     if(pwm_duty_)

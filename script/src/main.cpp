@@ -31,10 +31,18 @@ nav_msgs__msg__Odometry odom_msg;
 // #define max_rpm_ratio
 //temperary value
 int max_rpm = 0; 
-float max_rpm_ratio = 0.0;
 float wheel_diameter = 0.07;
 float wheel_distence_x = 0.2;
-float wheel_distance_y = 0.15;
+
+double integral; // pid variable
+double derivative;
+double prev_error;
+float kp = 0;
+float ki = 0;
+float kd = 0;
+int min_val = 0;
+int max_val = 1024;
+
 
 #define pwm_pin 7
 #define motor_pin_a 2
@@ -56,7 +64,7 @@ unsigned long prev_count_time = 0;
 unsigned long prev_count_tick = 0;
 
 control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
-Calculates calculates(max_rpm, max_rpm_ratio, wheel_diameter, wheel_distence_x,wheel_distance_y);
+Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
 
 unsigned long prev_cmdvel_time = 0;
 
@@ -100,6 +108,26 @@ float getRPM()
   return (delta_tick / Count_per_Revolution) / dtm; 
 }
 
+double pidcompute(float setpoint, float measured_value)
+{
+  double error;
+  double pid;
+
+  error = setpoint - measured_value;
+  integral += error;
+  derivative = error - prev_error;
+
+  if (setpoint == 0 && error == 0)
+  {
+    integral = 0;
+    derivative = 0;
+  }
+  pid = (kp * error) + (ki * integral) + (kd * derivative);
+  prev_error = error;
+
+  return constrain(pid, min_val, max_val);
+}
+
 void subcmdvel_callback(const void *msgin)
 {
   digitalWrite(13, !digitalRead(13));
@@ -111,7 +139,8 @@ void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
   RCLC_UNUSED(last_call_time);
   if(timer != NULL)
   {
-    Serial.print("임시");
+    move();
+
   }
 }
 
@@ -123,15 +152,22 @@ void move()
     twist_msg.angular.z = 0.0;
   }
   calculates.dcmotor_rpm = calculates.CalculateRpm(twist_msg.linear.x);
+  float calc_dc_rpm = calculates.dcmotor_rpm;
+  float ecd_rpm = getRPM();
+  double pidvel = pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z; 
+  motor.run(pidvel);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
 
-  Calculates::vel current_vel = calculates.get_velocities(current_steering_angle,twist_msg.linear.x);
+  Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, twist_msg.linear.x);
   //temperary value
 }
 
 void setup()
-{
+{ 
+  attachInterrupt(pA, encoderCount, FALLING);
+  pinMode(pB, INPUT);
+  attachInterrupt(pZ, encoderReset, FALLING);
   set_microros_transports();
   
   allocator = rcl_get_default_allocator();
@@ -144,12 +180,18 @@ void setup()
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), 
     "cmd_vel"));
   RCCHECK(rclc_publisher_init_best_effort(
+    &odom_pub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
+    "odom_velo"));
+  RCCHECK(rclc_publisher_init_best_effort(
     &imu_pub, 
     &node, 
     ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
      "imu/data"));
 
-  const unsigned int timeout = 20;
+  // For actuating the motor at 20 KHz (temp)
+  const unsigned int timeout = 0.05;
   RCCHECK(rclc_timer_init_default(
     &control_timer,
     &support,
@@ -169,7 +211,7 @@ void setup()
 
 void loop()
 { 
-
+  rclc_executor_spin_some(&executor, RCL_MS_TO_NS(10));
   // motor_control.run(180);
 }
 

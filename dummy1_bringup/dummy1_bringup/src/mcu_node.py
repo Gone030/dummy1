@@ -18,37 +18,14 @@ class ros22mcu(Node):
 
     def __init__(self):
         super().__init__('mcu_node')
-        self.get_logger().info("Connecting port")
-        _port_name = self.get_parameter_or('/port/name', Parameter('/port/name', Parameter.Type.STRING, '/dev/ttyACM0')).get_parameter_value().string_value
-        _port_baudrate = self.get_parameter_or('/port/baudrate', Parameter('/port/baudrate', Parameter.Type.INTEGER, 115200)).get_parameter_value().integer_value
-        # qos_profile = QoSProfile(
-        #     depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        qos_profile = QoSProfile(
+            depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
 
-        # # self.subvel = self.create_subscription(Twist, 'cmd_vel', self.decision ,qos_profile)
-        # self.pubImu = self.create_publisher(Imu, 'imu', qos_profile)
-        # self.pubOdo = self.create_publisher(Odometry, 'odom', qos_profile)
-        self.ser = None
-        self.ser = serial.Serial(_port_name, _port_baudrate)
-        self.timerprocess = self.create_timer(0.05, self.serialcomm)
+        self.subvel = self.create_subscription(Twist, 'cmd_vel', self.decision ,qos_profile)
+        self.subOdovel = self.create_subscription(Odometry, 'odom_velo',self.odometry, qos_profile)
+        self.pubImu = self.create_publisher(Imu, 'imu', qos_profile) # 듀에 에서 imu랑 odom 해결하자
+        self.pubOdo = self.create_publisher(Odometry, 'odom', qos_profile) # 여기말구
 
-    def serialcomm(self):
-        # a = self.get_clock().now()
-        # self.imu_angular_vel_x = self.read_data('Roll')
-        # self.imu_angular_vel_y = self.read_data('Pitch')
-        # self.imu_angular_vel_z = self.read_data('Yaw')
-        # self.imu_linear_acc_x = self.read_data('Ax')
-        # self.imu_linear_acc_y = self.read_data('Ay')
-        # self.imu_linear_acc_z = self.read_data('Az')
-        # self.ser.
-        # self.get_logger().info("test1")
-        # comm = 'c'
-        # self.ser.write(comm.encode())
-        if self.ser.readable():
-            self.responsedata = self.ser.readline()
-            self.data = self.responsedata[1:len(self.responsedata)-1].decode()
-        self.get_logger().info(self.data)
-        # b = self.get_clock().now()
-        # self.get_logger().info('looptime : %s' %(b-a))
 
     #     timestamp_now = self.get_clock().now().to_msg()
     #     imu_msg = Imu()
@@ -65,54 +42,56 @@ class ros22mcu(Node):
     #     self.current_Angular_vel_z = self.read_data('Ang')
     #     self.odometry(self.current_linear_vel_x, self.current_Angular_vel_z)
 
-    # def odometry(self, linear_vel_x, angular_vel_z):
-    #     odom_msg = Odometry()
-    #     self.x_pose = 0
-    #     self.y_pose = 0
-    #     self.theta = 0
-    #     self.now_time = self.get_clock().now()
-    #     self.dt = (self.now_time - self.prev_time).nanosecond * 1e-9
-    #     self.prev_time = self.now_time
-    #     self.dtheta = angular_vel_z * self.dt
-    #     self.costh = math.cos(self.theta)
-    #     self.sinth = math.sin(self.theta)
-    #     self.delta_x = (linear_vel_x * self.costh) * self.dt
-    #     self.delta_y = (linear_vel_x * self.sinth) * self.dt
+    def odometry(self, vel):
+        linear_vel_x = vel.linear_x
+        angular_vel_z = vel.angular_vel_z
+        odom_msg = Odometry()
+        self.x_pose = 0
+        self.y_pose = 0
+        self.theta = 0
+        self.now_time = self.get_clock().now()
+        self.dt = (self.now_time - self.prev_time).nanosecond * 1e-9
+        self.prev_time = self.now_time
+        self.dtheta = angular_vel_z * self.dt
+        self.costh = math.cos(self.theta)
+        self.sinth = math.sin(self.theta)
+        self.delta_x = (linear_vel_x * self.costh) * self.dt
+        self.delta_y = (linear_vel_x * self.sinth) * self.dt
 
-    #     self.x_pose += self.delta_x
-    #     self.y_pose += self.delta_y
-    #     self.theta += self.dtheta
+        self.x_pose += self.delta_x
+        self.y_pose += self.delta_y
+        self.theta += self.dtheta
 
-    #     q = self.euler_to_quaternion(0, 0, angular_vel_z)
+        q = self.euler_to_quaternion(0, 0, angular_vel_z)
 
-    #     odom_msg.header.frame_id = 'odom'
-    #     odom_msg.child_frame_id = 'base_footprint'
-    #     odom_msg.pose.pose.position.x = self.x_pose
-    #     odom_msg.pose.pose.position.y = self.y_pose
-    #     odom_msg.pose.pose.position.z = 0.0
+        odom_msg.header.frame_id = 'odom'
+        odom_msg.child_frame_id = 'base_footprint'
+        odom_msg.pose.pose.position.x = self.x_pose
+        odom_msg.pose.pose.position.y = self.y_pose
+        odom_msg.pose.pose.position.z = 0.0
 
-    #     odom_msg.pose.pose.orientation.x = q[1]
-    #     odom_msg.pose.pose.orientation.y = q[2]
-    #     odom_msg.pose.pose.orientation.z = q[3]
-    #     odom_msg.pose.pose.orientation.w = q[0]
+        odom_msg.pose.pose.orientation.x = q[1]
+        odom_msg.pose.pose.orientation.y = q[2]
+        odom_msg.pose.pose.orientation.z = q[3]
+        odom_msg.pose.pose.orientation.w = q[0]
 
-    #     odom_msg.pose.covariance[0] = 0.001
-    #     odom_msg.pose.covariance[7] = 0.001
-    #     odom_msg.pose.covariance[35] = 0.001
+        odom_msg.pose.covariance[0] = 0.001
+        odom_msg.pose.covariance[7] = 0.001
+        odom_msg.pose.covariance[35] = 0.001
 
-    #     odom_msg.twist.twist.linear.x = linear_vel_x
-    #     odom_msg.twist.twist.linear.y = 0
-    #     odom_msg.twist.twist.linear.z = 0
+        odom_msg.twist.twist.linear.x = linear_vel_x
+        odom_msg.twist.twist.linear.y = 0
+        odom_msg.twist.twist.linear.z = 0
 
-    #     odom_msg.twist.twist.angular.x = 0
-    #     odom_msg.twist.twist.angular.y = 0
-    #     odom_msg.twist.twist.angular.z = angular_vel_z
+        odom_msg.twist.twist.angular.x = 0
+        odom_msg.twist.twist.angular.y = 0
+        odom_msg.twist.twist.angular.z = angular_vel_z
 
-    #     odom_msg.twist.covariance[0] = 0.001
-    #     odom_msg.twist.covariance[7] = 0.001
-    #     odom_msg.twist.covariance[35] = 0.001
+        odom_msg.twist.covariance[0] = 0.001
+        odom_msg.twist.covariance[7] = 0.001
+        odom_msg.twist.covariance[35] = 0.001
 
-    #     self.pubOdo.publish(odom_msg)
+        self.pubOdo.publish(odom_msg)
 
     # def euler_to_quaternion(self, roll, pitch, yaw):
     #     cy = math.cos(yaw * 0.5)

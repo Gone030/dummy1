@@ -5,8 +5,6 @@ class Calculates
     private:
 
         float wheel_distance_x_;
-        float wheel_distance_y_;
-        float max_rpm_ratio_;
         float max_rpm_;
         float wheel_round_;
 
@@ -18,7 +16,7 @@ class Calculates
             float linear_x;
             float anguler_z;
         };
-        Calculates(int max_rpm, float max_rpm_ratio, float wheel_diameter, float wheel_distance_x, float wheel_distance_y);
+        Calculates(int max_rpm, float wheel_diameter, float wheel_distance_x);
         vel get_velocities(float steer_angle, float rpm);
         float CalculateRpm(float linear_x);
         

@@ -1,12 +1,10 @@
 #include "Calculates.h"
 
-Calculates::Calculates(int max_rpm, float max_rpm_ratio, float wheel_diameter, float wheel_distance_x, float wheel_distance_y)
+Calculates::Calculates(int max_rpm, float wheel_diameter, float wheel_distance_x)
 {
     max_rpm_ = max_rpm;
-    max_rpm_ratio_ = max_rpm_ratio;
     wheel_round_ = PI * wheel_diameter;
     wheel_distance_x_ = wheel_distance_x;
-    wheel_distance_y_ = wheel_distance_y;
 }
 
 float Calculates::CalculateRpm(float linear_x)
