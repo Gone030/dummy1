@@ -29,7 +29,7 @@ unsigned long prev_count_tick = 0;
 double integral; // pid variable
 double derivative;
 double prev_error;
-float kp = 0;
+float kp = 0; //모터 교체 완료 후 진행
 float ki = 0;
 float kd = 0;
 int min_val = 0;
@@ -65,7 +65,7 @@ float getRPM() // 엔코더 rpm 계산
   return (delta_tick / Count_per_Revolution) / dtm;
 }
 
-double pidcompute(float setpoint, float measured_value) // (계산 rpm , 엔코더 계산 rpm)
+double pidcompute(float setpoint, float measured_value) // (목표 rpm , 실제 rpm)
 {
   double error;
   double pid;
@@ -125,10 +125,11 @@ void loop()
     }
   }
   // motor.run(vel_);
-  float calcRPM = calc.CalculateRpm(vel_);
-  float ecdRPM = getRPM();
+  float calcRPM = calc.CalculateRpm(vel_); //모터에 적용되는 값을 rpm으로 변환
+  float ecdRPM = getRPM(); //엔코더로 얻은 실제 rpm
   double pidvel = pidcompute(calcRPM, ecdRPM);
   motor.run(pidvel);
-  Serial.println(pidvel);
-
+  // Serial.println(pidvel);
+  Serial.println(calcRPM);
+  Serial.println(ecdRPM);
 }
