@@ -10,7 +10,6 @@ from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
 
 import math
-import serial
 import numpy as np
 
 
