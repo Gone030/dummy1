@@ -265,12 +265,13 @@ void setup() {
   delay(2000);
 
   allocator = rcl_get_default_allocator();
-
   //create init_options
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
 
   // create node
-  RCCHECK(rclc_node_init_default(&node, "micro_ros_arduino_node", "", &support));
+  rcl_node_options_t node_ops = rcl_node_get_default_options();
+  node_ops.domain_id = 7;
+  RCCHECK(rclc_node_init_with_options(&node, "micro_ros_arduino_node", "", &support, &node_ops));
 
   // create publisher
   RCCHECK(rclc_publisher_init_default(
