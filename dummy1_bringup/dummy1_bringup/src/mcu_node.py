@@ -97,19 +97,19 @@ class ros22mcu(Node):
 
         self.pubOdo.publish(odom_msg)
 
-    # def euler_to_quaternion(self, roll, pitch, yaw):
-    #     cy = math.cos(yaw * 0.5)
-    #     sy = math.sin(yaw * 0.5)
-    #     cp = math.cos(pitch * 0.5)
-    #     sp = math.sin(pitch * 0.5)
-    #     cr = math.cos(roll * 0.5)
-    #     sr = math.sin(roll * 0.5)
-    #     q = [0] * 4
-    #     q[0] = cy * cp * sr - sy * sp * cr
-    #     q[1] = sy * cp * sr + cy * sp * cr
-    #     q[2] = sy * cp * cr - cy * sp * sr
-    #     q[3] = cy * cp * cr + sy * sp * sr
-    #     return q
+    def euler_to_quaternion(self, roll, pitch, yaw):
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+        q = [0] * 4
+        q[0] = cy * cp * sr - sy * sp * cr
+        q[1] = sy * cp * sr + cy * sp * cr
+        q[2] = sy * cp * cr - cy * sp * sr
+        q[3] = cy * cp * cr + sy * sp * sr
+        return q
 
     # def decision(self, vel):
     #     self.target_linear = int(vel.linear.x * 1000) #Dc motor vel
