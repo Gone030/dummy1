@@ -45,7 +45,7 @@ enum states
 #define max_rpm 330
 #define max_rpm_ratio
 temperary value
-int max_rpm = 0; 
+int max_rpm = 0;
 float wheel_diameter = 0.07;
 float wheel_distence_x = 0.2;
 
@@ -84,6 +84,12 @@ Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
 unsigned long prev_cmdvel_time = 0;
 */
 
+void error_loop(){
+  while(1){
+    digitalWrite(13, !digitalRead(13));
+    delay(100);
+  }
+}
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
@@ -93,12 +99,6 @@ unsigned long prev_cmdvel_time = 0;
  if (uxr_millis() - init > MS) {X; init = uxr_millis();} \
 } while (0)
 
-void error_loop(){
-  while(1){
-    digitalWrite(13, !digitalRead(13));
-    delay(100);
-  }
-}
 
 /*
 void encoderCount()
@@ -126,7 +126,7 @@ float getRPM()
   prev_count_tick = current_tick;
   prev_count_time = current_time;
 
-  return (delta_tick / Count_per_Revolution) / dtm; 
+  return (delta_tick / Count_per_Revolution) / dtm;
 }
 
 double pidcompute(float setpoint, float measured_value)
@@ -155,28 +155,6 @@ void subcmdvel_callback(const void *msgin)
 }
 */
 
-void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
-{
-  RCLC_UNUSED(last_call_time);
-  if(timer != NULL)
-  {
-    //move();
-    publishData();
-  }
-}
-void publishData()
-{
-  imu_msg = imu.getdata();
-  
-  struct timespec time_stamp = getTime();
-
-  imu_msg.header.stamp.sec = time_stamp.tv_sec;
-  imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
-
-  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
-
-}
-
 void syncTime()
 {
   unsigned long now = millis();
@@ -184,7 +162,6 @@ void syncTime()
   unsigned long long ros_time_ms = rmw_uros_epoch_millis();
   time_offset = ros_time_ms - now;
 }
-
 struct timespec getTime()
 {
   struct  timespec tp = {0};
@@ -194,7 +171,28 @@ struct timespec getTime()
 
   return tp;
 }
+void publishData()
+{
+  imu_msg = imu.getdata();
 
+  struct timespec time_stamp = getTime();
+
+  imu_msg.header.stamp.sec = time_stamp.tv_sec;
+  imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
+
+  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
+
+}
+
+void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
+{
+  RCLC_UNUSED(last_call_time);
+  if(timer != NULL)
+  {
+    //move();
+    publishData();
+  }
+}
 
 /*
 void move()
@@ -208,7 +206,7 @@ void move()
   float calc_dc_rpm = calculates.dcmotor_rpm;
   float ecd_rpm = getRPM();
   double pidvel = pidcompute(calc_dc_rpm, ecd_rpm);
-  float req_anguler_vel_z = twist_msg.angular.z; 
+  float req_anguler_vel_z = twist_msg.angular.z;
   motor.run(pidvel);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
 
@@ -216,21 +214,14 @@ void move()
   //temperary value
 }
 */
-void setup()
-{
-  /*
-  attachInterrupt(pA, encoderCount, FALLING);
-  pinMode(pB, INPUT);
-  attachInterrupt(pZ, encoderReset, FALLING);
-  */
-  set_microros_transports();
-}
 bool createEntities()
 {
   allocator = rcl_get_default_allocator();
 
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
-  RCCHECK(rclc_node_init_default(&node, "Dummy1_Due_node", "", &support));
+  rcl_node_options_t node_ops = rcl_node_get_default_options();
+  node_ops.domain_id = 7;
+  RCCHECK(rclc_node_init_with_options(&node, "Dummy1_Due_node", "", &support, &node_ops));
   /*
   RCCHECK(rclc_subscription_init_best_effort(
     &twist_sub,
@@ -243,14 +234,13 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
     "odom_velo"));
   */
-  
   RCCHECK(rclc_publisher_init_best_effort(
     &imu_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-    "imu/data" //수정 요
+    "imu_due" //수정 요
   ));
-  
+
   // For actuating the motor at 20 KHz (temp)
   const unsigned int timeout = 0.05;
   RCCHECK(rclc_timer_init_default(
@@ -270,6 +260,8 @@ bool createEntities()
     ON_NEW_DATA
   ));
   */
+ syncTime();
+ return true;
 }
 
 bool destroyEntities()
@@ -281,9 +273,20 @@ bool destroyEntities()
   //나머지 채워놓을것
   return true;
 }
+void setup()
+{
+  /*
+  attachInterrupt(pA, encoderCount, FALLING);
+  pinMode(pB, INPUT);
+  attachInterrupt(pZ, encoderReset, FALLING);
+  */
+  imu.init();
+  Serial.begin(115200);
+  set_microros_transports();
+}
 
 void loop()
-{ 
+{
   switch (state)
   {
     case Waiting_agent:
@@ -345,7 +348,7 @@ void error_loop(){
 }
 
 void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
-{  
+{
   RCLC_UNUSED(last_call_time);
   if (timer != NULL) {
     RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
@@ -355,10 +358,10 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 
 void setup() {
   set_microros_transports();
-  
+
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);  
-  
+  digitalWrite(LED_PIN, HIGH);
+
   delay(2000);
 
   allocator = rcl_get_default_allocator();

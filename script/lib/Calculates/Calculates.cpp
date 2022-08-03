@@ -8,12 +8,12 @@ Calculates::Calculates(int max_rpm, float wheel_diameter, float wheel_distance_x
 }
 
 float Calculates::CalculateRpm(float linear_x)
-{   
+{
     float linear_x_mins = linear_x * 60;
     float x_rpm = linear_x_mins / wheel_round_;
 
     dcmotor_rpm = x_rpm;
-    
+
     return dcmotor_rpm;
 }
 
