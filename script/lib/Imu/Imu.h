@@ -25,6 +25,23 @@ protected:
     float accel_cov_ = 0.00001;
     float gyro_cov_ = 0.00001;
 
+    void calibrateGyro()
+    {
+        geometry_msgs__msg__Vector3 gyro;
+        for(int i=0; i<sample_size_; i++)
+        {
+            gyro = readgyroscope();
+            gyro_cal_.x += gyro.x;
+            gyro_cal_.y += gyro.y;
+            gyro_cal_.z += gyro.z;
+
+            delay(50);
+        }
+        gyro_cal_.x = gyro_cal_.x / (float)sample_size_;
+        gyro_cal_.y = gyro_cal_.y / (float)sample_size_;
+        gyro_cal_.z = gyro_cal_.z / (float)sample_size_;
+    }
+
 public:
     Imu()
     {
@@ -78,19 +95,7 @@ public:
         bool sensor_ready = startSensor();
         if(sensor_ready)
         {
-            geometry_msgs__msg__Vector3 gyro;
-
-            for(int i=0; i<sample_size_; i++)
-            {
-                gyro = readgyroscope();
-                gyro_cal_.x += gyro.x;
-                gyro_cal_.y += gyro.y;
-                gyro_cal_.z += gyro.z;
-                delay(50);
-            }
-            gyro_cal_.x = gyro_cal_.x / (float)sample_size_;
-            gyro_cal_.y = gyro_cal_.y / (float)sample_size_;
-            gyro_cal_.z = gyro_cal_.z / (float)sample_size_;
+            calibrateGyro();
         }
         return sensor_ready;
     }

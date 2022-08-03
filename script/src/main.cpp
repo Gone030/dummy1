@@ -86,8 +86,14 @@ unsigned long prev_cmdvel_time = 0;
 
 void error_loop(){
   while(1){
-    digitalWrite(13, !digitalRead(13));
-    delay(100);
+    for(int i=0; i<2; i++)
+    {
+      digitalWrite(13, HIGH);
+      delay(150);
+      digitalWrite(13, LOW);
+      delay(150);
+    }
+    delay(1000);
   }
 }
 
@@ -280,8 +286,23 @@ void setup()
   pinMode(pB, INPUT);
   attachInterrupt(pZ, encoderReset, FALLING);
   */
-  imu.init();
+  bool imu_test = imu.init();
+  if(!imu_test)
+  {
+    while(1)
+    {
+      for(int i=0; i<4; i++)
+      {
+      digitalWrite(13,HIGH);
+      delay(150);
+      digitalWrite(13,LOW);
+      delay(150);
+      }
+      delay(1000);
+    }
+  }
   Serial.begin(115200);
+  pinMode(13,OUTPUT);
   set_microros_transports();
 }
 
