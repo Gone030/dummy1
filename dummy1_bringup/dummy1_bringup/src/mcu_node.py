@@ -19,34 +19,35 @@ class ros22mcu(Node):
         super().__init__('mcu_node')
         qos_profile = QoSProfile(
             depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
-
-        self.subvel = self.create_subscription(Twist, 'cmd_vel', self.decision ,qos_profile)
-        self.subOdovel = self.create_subscription(Odometry, 'odom_velo',self.odometry, qos_profile)
-        self.subImu = self.create_subscription(Imu, 'Imu_due', self.imucontrol, qos_profile)
-        self.pubImu = self.create_publisher(Imu, 'imu', qos_profile)
-        self.pubOdo = self.create_publisher(Odometry, 'odom', qos_profile)
+        self.get_logger().info('waiting')
+        # self.subvel = self.create_subscription(Twist, 'cmd_vel', self.decision ,qos_profile)
+        # self.subOdovel = self.create_subscription(Odometry, 'odom_velo',self.odometry, qos_profile)
+        self.subImu = self.create_subscription(Imu, 'imu_due', self.imucontrol, qos_profile)
+        # self.pubImu = self.create_publisher(Imu, 'imu', qos_profile)
+        # self.pubOdo = self.create_publisher(Odometry, 'odom', qos_profile)
 
     def imucontrol(self, imu):
-        self.imu_angular_vel_x = imu.angular_velocity.x
-        self.imu_angular_vel_y = imu.angular_velocity.y
-        self.imu_angular_vel_z = imu.angular_velocity.z
-        self.imu_linear_acceleration_x = imu.linear_acceleration.x
-        self.imu_linear_acceleration_y = imu.linear_acceleration.y
-        self.imu_linear_acceleration_z = imu.linear_acceleration.z
-        timestamp_now = self.get_clock().now().to_msg()
-        imu_msg = Imu()
-        imu_msg.header.frame_id = 'imu_link'
-        imu_msg.header.stamp = timestamp_now
-        imu_msg.angular_velocity.x = float(self.imu_angular_vel_x)
-        imu_msg.angular_velocity.y = float(self.imu_angular_vel_y)
-        imu_msg.angular_velocity.z = float(self.imu_angular_vel_z)
-        imu_msg.linear_acceleration.x = float(self.imu_linear_acc_x)
-        imu_msg.linear_acceleration.y = float(self.imu_linear_acc_y)
-        imu_msg.linear_acceleration.z = float(self.imu_linear_acc_z)
-        self.get_logger().info('angular_v_x = {0}'.format(self.imu_angular_vel_x))
-        self.get_logger().info('angular_v_y = {0}'.format(self.imu_angular_vel_y))
-        self.get_logger().info('angular_v_z = {0}'.format(self.imu_angular_vel_z))
-        self.pubImu.publish(imu_msg)
+        self.get_logger().info('msg receive')
+        # self.imu_angular_vel_x = imu.angular_velocity.x
+        # self.imu_angular_vel_y = imu.angular_velocity.y
+        # self.imu_angular_vel_z = imu.angular_velocity.z
+        # self.imu_linear_acceleration_x = imu.linear_acceleration.x
+        # self.imu_linear_acceleration_y = imu.linear_acceleration.y
+        # self.imu_linear_acceleration_z = imu.linear_acceleration.z
+        # timestamp_now = self.get_clock().now().to_msg()
+        # imu_msg = Imu()
+        # imu_msg.header.frame_id = 'imu_link'
+        # imu_msg.header.stamp = timestamp_now
+        # imu_msg.angular_velocity.x = float(self.imu_angular_vel_x)
+        # imu_msg.angular_velocity.y = float(self.imu_angular_vel_y)
+        # imu_msg.angular_velocity.z = float(self.imu_angular_vel_z)
+        # imu_msg.linear_acceleration.x = float(self.imu_linear_acc_x)
+        # imu_msg.linear_acceleration.y = float(self.imu_linear_acc_y)
+        # imu_msg.linear_acceleration.z = float(self.imu_linear_acc_z)
+        # self.get_logger().info('angular_v_x = {0}'.format(imu_msg.linear_acceleration.x))
+        # self.get_logger().info('angular_v_y = {0}'.format(imu_msg.linear_acceleration.y))
+        # self.get_logger().info('angular_v_z = {0}'.format(imu_msg.linear_acceleration.z))
+        # self.pubImu.publish(imu_msg)
 
 
     # def odometry(self, vel):
