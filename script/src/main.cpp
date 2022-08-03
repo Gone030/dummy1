@@ -193,6 +193,26 @@ void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
     publishData();
   }
 }
+void publishData()
+{
+  imu_msg = imu.getdata();
+
+  struct timespec time_stamp = getTime();
+
+  imu_msg.header.stamp.sec = time_stamp.tv_sec;
+  imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
+
+  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
+
+}
+
+void syncTime()
+{
+  unsigned long now = millis();
+  RCCHECK(rmw_uros_sync_session(10));
+  unsigned long long ros_time_ms = rmw_uros_epoch_millis();
+  time_offset = ros_time_ms - now;
+}
 
 
 
@@ -234,7 +254,6 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
     "odom_velo"));
   */
-
   RCCHECK(rclc_publisher_init_best_effort(
     &imu_pub,
     &node,

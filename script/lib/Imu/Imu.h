@@ -86,7 +86,6 @@ public:
                 gyro_cal_.x += gyro.x;
                 gyro_cal_.y += gyro.y;
                 gyro_cal_.z += gyro.z;
-
                 delay(50);
             }
             gyro_cal_.x = gyro_cal_.x / (float)sample_size_;
