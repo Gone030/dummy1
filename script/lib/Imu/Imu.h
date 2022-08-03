@@ -29,6 +29,9 @@ public:
     Imu()
     {
     }
+    ~Imu()
+    {
+    }
     bool startSensor()
     {
         Wire.begin();
@@ -83,7 +86,6 @@ public:
                 gyro_cal_.x += gyro.x;
                 gyro_cal_.y += gyro.y;
                 gyro_cal_.z += gyro.z;
-                
                 delay(50);
             }
             gyro_cal_.x = gyro_cal_.x / (float)sample_size_;
@@ -101,10 +103,10 @@ public:
 
         if(imu_msg_.angular_velocity.x > -0.01 && imu_msg_.angular_velocity.x < 0.01)
             imu_msg_.angular_velocity.x = 0;
-        
+
         if(imu_msg_.angular_velocity.y > -0.01 && imu_msg_.angular_velocity.y < 0.01)
             imu_msg_.angular_velocity.y = 0;
-        
+
         if(imu_msg_.angular_velocity.z > -0.01 && imu_msg_.angular_velocity.z < 0.01)
             imu_msg_.angular_velocity.z = 0;
 
@@ -120,6 +122,5 @@ public:
         return imu_msg_;
     }
 
-    ~Imu();
 };
 
