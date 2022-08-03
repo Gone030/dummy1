@@ -193,28 +193,6 @@ void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
     publishData();
   }
 }
-void publishData()
-{
-  imu_msg = imu.getdata();
-
-  struct timespec time_stamp = getTime();
-
-  imu_msg.header.stamp.sec = time_stamp.tv_sec;
-  imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
-
-  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
-
-}
-
-void syncTime()
-{
-  unsigned long now = millis();
-  RCCHECK(rmw_uros_sync_session(10));
-  unsigned long long ros_time_ms = rmw_uros_epoch_millis();
-  time_offset = ros_time_ms - now;
-}
-
-
 
 /*
 void move()
@@ -241,7 +219,9 @@ bool createEntities()
   allocator = rcl_get_default_allocator();
 
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
-  RCCHECK(rclc_node_init_default(&node, "Dummy1_Due_node", "", &support));
+  rcl_node_options_t node_ops = rcl_node_get_default_options();
+  node_ops.domain_id = 7;
+  RCCHECK(rclc_node_init_with_options(&node, "Dummy1_Due_node", "", &support, &node_ops));
   /*
   RCCHECK(rclc_subscription_init_best_effort(
     &twist_sub,
