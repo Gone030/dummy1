@@ -1,6 +1,5 @@
 #include <Arduino.h>
 
-
 #include <micro_ros_arduino.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
@@ -16,6 +15,7 @@
 #include "Motor.h"
 #include "Imu.h"
 
+String mystring = "" ;
 // rcl_subscription_t twist_sub;
 // rcl_publisher_t odom_pub;
 rcl_publisher_t imu_pub;
@@ -300,6 +300,8 @@ bool destroyEntities()
 }
 void setup()
 {
+  Serial.begin(115200);
+  Wire.begin();
   /*
   attachInterrupt(pA, encoderCount, FALLING);
   pinMode(pB, INPUT);
@@ -307,6 +309,7 @@ void setup()
   */
 
   bool imu_test = imu.init();
+
   if(!imu_test)
   {
     while(1)
@@ -321,7 +324,6 @@ void setup()
       delay(1000);
     }
   }
-  Serial.begin(115200);
   pinMode(13,OUTPUT);
   set_microros_transports();
 }
