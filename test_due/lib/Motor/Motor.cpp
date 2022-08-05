@@ -14,16 +14,16 @@ control::control(int pwm_pin, int motor_pin_a, int motor_pin_b, int servo_pin )
 
     pinMode(motor_pin_A_, OUTPUT);
     pinMode(motor_pin_B_, OUTPUT);
-    pinMode(pwm_pin_, OUTPUT); 
+    pinMode(pwm_pin_, OUTPUT);
 
     steering_servo.attach(servo_pin_);
 
 }
 
 void control::run(double pwm_duty)
-{   
+{
     pwm_duty_ = pwm_duty;
-    if(pwm_duty_)
+    if(pwm_duty_ > 0)
     {
         digitalWrite(motor_pin_A_, HIGH);
         digitalWrite(motor_pin_B_, LOW);
@@ -33,6 +33,7 @@ void control::run(double pwm_duty)
         digitalWrite(motor_pin_A_, LOW);
         digitalWrite(motor_pin_B_, HIGH);
     }
+    pwm_duty_ = constrain(pwm_duty_,-255,255);
     analogWrite(pwm_pin_, pwm_duty_);
 }
 

@@ -29,11 +29,11 @@ unsigned long prev_count_tick = 0;
 double integral; // pid variable
 double derivative;
 double prev_error;
-float kp = 5; //<5
-float ki = 0;
+float kp = 20;
+float ki = 5;
 float kd = 0;
-int min_val = 0;
-int max_val = 1024;
+int min_val = -255;
+int max_val = 255;
 
 control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
 
@@ -42,7 +42,7 @@ void encoderCount()
   dir_ = (digitalRead(pB) == HIGH) ? -1 : 1;
   cnt_ += dir_;
 }
-void encoderReset() // 얘 왜 빠져있어
+void encoderReset()
 {
   cnt_ = 0;
 }
@@ -50,7 +50,7 @@ long returnCount()
 {
   return cnt_;
 }
-float getRPM() // 엔코더 rpm 계산 // 얘 안되는중
+float getRPM() // 엔코더 rpm 계산
 {
   long current_tick = returnCount();
   unsigned long current_time = micros();
@@ -69,20 +69,28 @@ double pidcompute(float setpoint, float measured_value) // (목표 rpm , 실제 
 {
   double error;
   double pid;
+  // unsigned long currentTime = 0, previousTime = 0;
+  // double elapsedTime = 0;
+  // currentTime = millis();
 
   error = setpoint - measured_value;
-  integral += error;
-  derivative = error - prev_error;
+  // integral +=  ki*error*elapsedTime;
+  // derivative = (error - prev_error)/elapsedTime;
 
   if (setpoint == 0 && error == 0)
   {
+    pid = 0;
     integral = 0;
     derivative = 0;
   }
-  pid = (kp * error) + (ki * integral) + (kd * derivative);
+  // pid = (kp * error) + (integral) + (kd * derivative);
+  pid = (kp * error);
   prev_error = error;
-
-  return constrain(pid, min_val, max_val);
+  // previousTime = currentTime;
+  if(pid == 0)
+    { return pid;}
+  else
+    return constrain(pid, min_val, max_val);
 }
 
 void setup()
@@ -107,11 +115,11 @@ void loop()
     switch (temp_)
     {
     case 1:
-      vel_ += 10.0;
+      vel_ += 1.0;
       flag_ = false;
       break;
     case 2:
-      vel_ -= 10.0;
+      vel_ = vel_ - 1.0;
       flag_ = false;
       break;
     case 3:
@@ -123,6 +131,9 @@ void loop()
       Serial.println(map(vel_, 0, 1023, 0, 4095));
       flag_ = false;
       break;
+    case 4:
+      while(1)
+      {}
     }
   }
 
@@ -133,6 +144,8 @@ void loop()
   motor.run(pidvel);
   // Serial.println(pidvel);
   Serial.print(calcRPM);
-  Serial.print(" ");
+  Serial.print(',');
   Serial.println(ecdRPM);
+  // Serial.print(',');
+  // Serial.println(pidvel);
 }

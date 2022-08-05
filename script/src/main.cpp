@@ -6,7 +6,7 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 
-// #include <geometry_msgs/msg/twist.h>
+#include <geometry_msgs/msg/twist.h>
 #include <sensor_msgs/msg/imu.h>
 #include <std_msgs/msg/int32.h> //test
 // #include <nav_msgs/msg/odometry.h>
@@ -16,7 +16,7 @@
 #include "Imu.h"
 
 String mystring = "" ;
-// rcl_subscription_t twist_sub;
+rcl_subscription_t twist_sub;
 // rcl_publisher_t odom_pub;
 rcl_publisher_t imu_pub;
 rcl_subscription_t imu_sub;
@@ -30,7 +30,7 @@ rcl_timer_t control_timer;
 
 unsigned long long time_offset = 0;
 
-// geometry_msgs__msg__Twist twist_msg;
+geometry_msgs__msg__Twist twist_msg;
 sensor_msgs__msg__Imu imu_msg;
 std_msgs__msg__Int32 testmsg;
 // nav_msgs__msg__Odometry odom_msg;
@@ -45,22 +45,20 @@ enum states
   agent_disconnected
 } state;
 
-/*
-#define max_rpm 330
-#define max_rpm_ratio
-temperary value
-int max_rpm = 0;
-float wheel_diameter = 0.07;
-float wheel_distence_x = 0.2;
+
+#define max_rpm 18000
+
+float wheel_diameter = 7.3;
+float wheel_distence_x = 18.3;
 
 double integral; // pid variable
 double derivative;
 double prev_error;
-float kp = 0;
+float kp = 20;
 float ki = 0;
 float kd = 0;
-int min_val = 0;
-int max_val = 1024;
+int min_val = -255;
+int max_val = 255;
 
 
 #define pwm_pin 7
@@ -86,7 +84,7 @@ control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
 Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
 
 unsigned long prev_cmdvel_time = 0;
-*/
+
 
 void error_loop(){
   while(1){
@@ -110,10 +108,10 @@ void error_loop(){
 } while (0)
 
 
-/*
+
 void encoderCount()
 {
-  dir_ = (digitalRead(pB) == HIGH)? -1: 1; //reverse
+  dir_ = (digitalRead(pB) == HIGH)? -1: 1;
   cnt_ += dir_;
 }
 void encoderReset()
@@ -153,7 +151,7 @@ double pidcompute(float setpoint, float measured_value)
     integral = 0;
     derivative = 0;
   }
-  pid = (kp * error) + (ki * integral) + (kd * derivative);
+  pid = (kp * error); //+ (ki * integral) + (kd * derivative);
   prev_error = error;
 
   return constrain(pid, min_val, max_val);
@@ -163,7 +161,7 @@ void subcmdvel_callback(const void *msgin)
   digitalWrite(13, !digitalRead(13));
   prev_cmdvel_time = millis();
 }
-*/
+
 
 void syncTime()
 {
@@ -205,7 +203,7 @@ void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
   }
 }
 
-/*
+
 void move()
 {
   if((millis() - prev_cmdvel_time) >= 200)
@@ -213,8 +211,7 @@ void move()
     twist_msg.linear.x = 0.0;
     twist_msg.angular.z = 0.0;
   }
-  calculates.dcmotor_rpm = calculates.CalculateRpm(twist_msg.linear.x);
-  float calc_dc_rpm = calculates.dcmotor_rpm;
+  float calc_dc_rpm = calculates.CalculateRpm(twist_msg.linear.x);
   float ecd_rpm = getRPM();
   double pidvel = pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z;
@@ -224,7 +221,7 @@ void move()
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, twist_msg.linear.x);
   //temperary value
 }
-*/
+
 
 bool createEntities()
 {
@@ -234,12 +231,14 @@ bool createEntities()
   rcl_node_options_t node_ops = rcl_node_get_default_options();
   node_ops.domain_id = 7;
   RCCHECK(rclc_node_init_with_options(&node, "Dummy1_Due_node", "", &support, &node_ops));
-  /*
+
   RCCHECK(rclc_subscription_init_best_effort(
     &twist_sub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
-    "cmd_vel"));
+    "cmd_vel"
+  ));
+  /*
   RCCHECK(rclc_publisher_init_best_effort(
     &odom_pub,
     &node,
@@ -270,7 +269,7 @@ bool createEntities()
   ));
   executor = rclc_executor_get_zero_initialized_executor();
   RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
-  /*
+
   RCCHECK(rclc_executor_add_subscription(
     &executor,
     &twist_sub,
@@ -278,11 +277,10 @@ bool createEntities()
     &subcmdvel_callback,
     ON_NEW_DATA
   ));
-  */
   RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
- testmsg.data = 0;
- syncTime();
- return true;
+  testmsg.data = 0;
+  syncTime();
+  return true;
 }
 
 bool destroyEntities()
@@ -357,4 +355,3 @@ void loop()
       break;
   }
 }
-/////////////////////////////////////////////////////////////////
