@@ -37,7 +37,7 @@ class ros22mcu(Node):
         timestamp_now = self.get_clock().now().to_msg()
         imu_msg = imu
         imu_msg.header.frame_id = 'imu_base'
-        imu_msg.header.stamp = timestamp_now
+        # imu_msg.header.stamp = timestamp_now
         self.pubImu.publish(imu_msg)
     def testcallback(self, msg):
         global prv_num
