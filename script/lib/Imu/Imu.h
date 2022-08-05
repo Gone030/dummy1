@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <MPU9250.h>
+#include "MPU9250.h"
 
 #include <sensor_msgs/msg/imu.h>
 
@@ -52,11 +52,13 @@ public:
     bool startSensor()
     {
         Wire.begin();
-        if(!accelerometer_.setup(0x68))
+        accelerometer_.initialize();
+        if(!accelerometer_.testConnection())
         {
             return false;
         }
-        if(!gyroscope_.setup(0x68))
+        gyroscope_.initialize();
+        if(!gyroscope_.testConnection())
         {
             return false;
         }
@@ -64,10 +66,9 @@ public:
     }
     geometry_msgs__msg__Vector3 readgyroscope()
     {
-        uint8_t gx, gy, gz;
-        gx = gyroscope_.getGyroX();
-        gy = gyroscope_.getGyroY();
-        gz = gyroscope_.getGyroZ();
+        int16_t gx, gy, gz;
+
+        gyroscope_.getRotation(&gx, &gy, &gz);
 
         gyro_.x = gx * (double) gyro_scale_ * DEG_TO_RAD;
         gyro_.y = gy * (double) gyro_scale_ * DEG_TO_RAD;
@@ -77,11 +78,9 @@ public:
     }
     geometry_msgs__msg__Vector3 readaccelerometer()
     {
-        uint8_t ax, ay, az;
+        int16_t ax, ay, az;
 
-        ax = accelerometer_.getAccX();
-        ay = accelerometer_.getAccY();
-        az = accelerometer_.getAccZ();
+        accelerometer_.getAcceleration(&ax, &ay, &az);
 
         accel_.x = ax * (double) accel_scale_ * g_to_accel_;
         accel_.y = ay * (double) accel_scale_ * g_to_accel_;
