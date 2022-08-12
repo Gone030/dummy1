@@ -114,11 +114,6 @@ class ros22mcu(Node):
     #     q[3] = cy * cp * cr + sy * sp * sr
     #     return q
 
-    # def decision(self, vel):
-    #     self.target_linear = int(vel.linear.x * 1000) #Dc motor vel
-    #     self.target_angular = int(vel.angular.z * 1000) #Servo motor ang
-
-    #     self.write_data(str(self.target_angular +'!'+self.target_linear))
 
 def main(args=None):
     rclpy.init(args=args)
