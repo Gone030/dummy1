@@ -7,15 +7,13 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
-    robot_base = os.getenv('Dummy1_base')
-
     urdf_path = PathJoinSubstitution(
         [FindPackageShare('dummy1_description'), 'urdf', 'base.urdf.xacro']
     )
 
-    # rviz_config_path = PathJoinSubstitution(
-    #     [FindPackageShare('dummy1_description'), 'rviz', description.rviz]
-    # )
+    rviz_config_path = PathJoinSubstitution(
+        [FindPackageShare('dummy1_description'), 'rviz', 'description.rviz']
+    )
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -43,7 +41,10 @@ def generate_launch_description():
             package='joint_state_publisher',
             executable='joint_state_publisher',
             name='joint_state_publisher',
-            condition=IfCondition(LaunchConfiguration("publish_joints"))
+            condition=IfCondition(LaunchConfiguration("gui")),
+            parameters=[
+                {'use_sim_time': LaunchConfiguration('use_sim_time')}
+            ]
         ),
 
         Node(
@@ -62,7 +63,7 @@ def generate_launch_description():
             executable='rviz2',
             name='rviz2',
             output='screen',
-            # arguments=['-d', rviz_config_path],
+            arguments=['-d', rviz_config_path],
             condition=IfCondition(LaunchConfiguration("rviz")),
             parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
         )

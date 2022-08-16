@@ -14,25 +14,33 @@ def generate_launch_description():
   lidar_parameter = PathJoinSubstitution(
     [FindPackageShare('dummy1_bringup'), 'param', 'ydlidar.yaml']
   )
+  ekf_config_path = PathJoinSubstitution(
+    [FindPackageShare('dummy1_bringup'), 'param', 'ekf.yaml']
+  )
   return LaunchDescription([
     DeclareLaunchArgument(
       name='serial_port',
       default_value='/dev/ttyACM0',
       description='Serial port'
     ),
-    # Node(
-    #   package='robot_localization',
-    #   executable=''
-
-    # )
-
     Node(
-      package='micro_ros_agent',
-      executable='micro_ros_agent',
-      name='micro_ros_agent',
+      package='robot_localization',
+      executable='ekf_node',
+      name='ekf_filter_node',
       output='screen',
-      arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
+      parameters=[
+        ekf_config_path
+      ],
+      remappings=[("odometry/filtered", "odom")]
     ),
+
+    # Node(
+    #   package='micro_ros_agent',
+    #   executable='micro_ros_agent',
+    #   name='micro_ros_agent',
+    #   output='screen',
+    #   arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
+    # ),
     Node(
       package='dummy1_bringup',
       executable='mcu_node',

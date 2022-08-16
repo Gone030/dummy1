@@ -165,4 +165,16 @@
         <child link="ackermann_bar_link"/>
         <origin xyz="-0.04 0.0 0.0"/>
     </joint>
+    <link name="inu_link">
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+        </visual>
+    </link>
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="0.0 0.0 0.1"/>
+    </joint>
 </robot>
