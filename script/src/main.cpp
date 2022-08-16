@@ -41,8 +41,8 @@ enum states
 
 #define max_rpm 18000
 
-float wheel_diameter = 7.3;
-float wheel_distence_x = 18.3;
+float wheel_diameter = 0.073;
+float wheel_distence_x = 0.183;
 
 double integral; // pid variable
 double derivative;
