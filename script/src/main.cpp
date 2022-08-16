@@ -186,15 +186,6 @@ void publishData()
   RCSOFTCHECK(rcl_publish(&odom_velo_pub, &odom_velo, NULL));
 }
 
-void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
-{
-  RCLC_UNUSED(last_call_time);
-  if(timer != NULL)
-  {
-    move();
-    publishData();
-  }
-}
 
 
 void move()
@@ -217,6 +208,15 @@ void move()
   odom_velo.angular.x = current_vel.anguler_z;
 }
 
+void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
+{
+  RCLC_UNUSED(last_call_time);
+  if(timer != NULL)
+  {
+    move();
+    publishData();
+  }
+}
 
 bool createEntities()
 {
