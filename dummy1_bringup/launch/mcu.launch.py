@@ -1,32 +1,53 @@
-import os
-
-from ament_index_python.packages import get_package_share_directory
+from platform import node
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+from launch.conditions import IfCondition
 
 def generate_launch_description():
-  mcu_parameter = LaunchConfiguration(
-  'mcu',
-  default=os.path.join(
-      get_package_share_directory('dummy1_bringup'),
-      'param',
-      'mcu.yaml'
-    )
+  description_launch_path = PathJoinSubstitution(
+    [FindPackageShare('dummy1_description'), 'launch', 'description.launch.py']
+  )
+  lidar_parameter = PathJoinSubstitution(
+    [FindPackageShare('dummy1_bringup'), 'param', 'ydlidar.yaml']
   )
   return LaunchDescription([
     DeclareLaunchArgument(
-      'mcu',
-      default_value=mcu_parameter
+      name='serial_port',
+      default_value='/dev/ttyACM0',
+      description='Serial port'
     ),
+    # Node(
+    #   package='robot_localization',
+    #   executable=''
 
+    # )
+
+    Node(
+      package='micro_ros_agent',
+      executable='micro_ros_agent',
+      name='micro_ros_agent',
+      output='screen',
+      arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
+    ),
     Node(
       package='dummy1_bringup',
       executable='mcu_node',
       name='mcu_node',
-      parameters=[mcu_parameter],
-      emulate_tty=True,
       output='screen',
+    ),
+    # Node(
+    #   package='ydlidar_ros2_driver',
+    #   executable='ydlidar_ros2_driver_node',
+    #   name='ydlidar_ros2_driver_node',
+    #   parameters=[lidar_parameter],
+    #   emulate_tty=True,
+    #   output='screen',
+    # )
+    IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(description_launch_path)
     )
 ])
