@@ -136,16 +136,16 @@ void loop()
       {}
     }
   }
-
+  motor.steer(vel_);
   // motor.run(vel_);
-  float calcRPM = calc.CalculateRpm(vel_); //모터에 적용되는 값을 rpm으로 변환
-  float ecdRPM = getRPM(); //엔코더로 얻은 실제 rpm
-  double pidvel = pidcompute(calcRPM, ecdRPM);
-  motor.run(pidvel);
+  // float calcRPM = calc.CalculateRpm(vel_); //모터에 적용되는 값을 rpm으로 변환
+  // float ecdRPM = getRPM(); //엔코더로 얻은 실제 rpm
+  // double pidvel = pidcompute(calcRPM, ecdRPM);
+  // motor.run(pidvel);
   // Serial.println(pidvel);
-  Serial.print(calcRPM);
-  Serial.print(',');
-  Serial.println(ecdRPM);
+  // Serial.print(calcRPM);
+  // Serial.print(',');
+  // Serial.println(ecdRPM);
   // Serial.print(',');
   // Serial.println(pidvel);
 }

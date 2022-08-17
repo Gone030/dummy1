@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include <stdio.h>
 #include <micro_ros_arduino.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
@@ -24,6 +24,7 @@ rcl_node_t node;
 rcl_timer_t control_timer;
 
 unsigned long long time_offset = 0;
+unsigned long prev_cmdvel_time = 0;
 
 geometry_msgs__msg__Twist twist_msg;
 geometry_msgs__msg__Twist odom_velo;
@@ -77,7 +78,6 @@ control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
 Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
 Imu imu;
 
-unsigned long prev_cmdvel_time = 0;
 
 
 void error_loop(){
@@ -173,6 +173,7 @@ struct timespec getTime()
 
   return tp;
 }
+
 void publishData()
 {
   imu_msg = imu.getdata();
@@ -277,6 +278,7 @@ bool destroyEntities()
   (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   rcl_publisher_fini(&imu_pub, &node);
+  rcl_publisher_fini(&odom_velo_pub, &node);
   rclc_executor_fini(&executor);
   rclc_support_fini(&support);
   rcl_timer_fini(&control_timer);
