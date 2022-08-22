@@ -28,10 +28,100 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /robot_description
       Enabled: true
+      Links:
+        All lincks Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Exepand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        driveRwhl_l:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        driveRwhl_r:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_R_bar_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        front_L_bar_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        steer_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        front_R_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_L_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ackermann_bar_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: RobotModel
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
       Visual Enabled: true
     - Class: rviz_default_plugins/TF
       Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All enabled: true
+        base_footprint:
+          Value: true
+        base_link:
+          Value: true
+        laser:
+          Value: true
+        imu_link:
+          Value: true
+        driveRwhl_l:
+          Value: true
+        driveRwhl_r:
+          Value: true
+        front_L_bar_link:
+          Value: true
+        front_R_bar_link:
+          Value: true
+        front_L_wheel_link:
+          Value: true
+        front_R_wheel_link:
+          Value: true
+        steer_link:
+          Value: true
+        ackermann_bar_link:
+          Value: true
       Name: TF
       Marker Scale: 0.3
       Show Arrows: true

@@ -22,7 +22,7 @@ def generate_launch_description():
             description='URDF path'
         ),
         DeclareLaunchArgument(
-            name='pablish_joints',
+            name='publish_joints',
             default_value='true',
             description='launch joint_states_publisher'
         ),
@@ -41,7 +41,7 @@ def generate_launch_description():
             package='joint_state_publisher',
             executable='joint_state_publisher',
             name='joint_state_publisher',
-            condition=IfCondition(LaunchConfiguration("gui")),
+            condition=IfCondition(LaunchConfiguration("publish_joints")),
             parameters=[
                 {'use_sim_time': LaunchConfiguration('use_sim_time')}
             ]
@@ -55,7 +55,7 @@ def generate_launch_description():
             parameters=[
                 {
                 'use_sim_time': LaunchConfiguration('use_sim_time'),
-                'robot_description': Command(['xacro', LaunchConfiguration('urdf')])
+                'robot_description': Command(['xacro ', LaunchConfiguration('urdf')])
             }]
         ),
         Node(
