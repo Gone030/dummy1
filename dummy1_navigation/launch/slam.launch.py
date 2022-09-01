@@ -1,8 +1,5 @@
-from distutils.command.config import config
-from msilib.schema import Condition
 import os
 from launch import LaunchDescription
-from launch import LaunchContext
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, EnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -51,7 +48,7 @@ def generate_launch_description():
             name = 'rviz2',
             output = 'screen',
             arguments = ['-d', rviz_config_path],
-            condition = IfCondition(LaunchConfiguration("rvizw")),
+            condition = IfCondition(LaunchConfiguration("rviz")),
             parameters = [{'use_sim_time': LaunchConfiguration("sim")}]
         )
     ])
