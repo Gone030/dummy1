@@ -279,9 +279,11 @@ bool destroyEntities()
 
   rcl_publisher_fini(&imu_pub, &node);
   rcl_publisher_fini(&odom_velo_pub, &node);
+  rcl_subscription_fini(&twist_sub, &node);
   rclc_executor_fini(&executor);
   rclc_support_fini(&support);
   rcl_timer_fini(&control_timer);
+  rcl_node_fini(&node);
   //나머지 채워놓을것
   return true;
 }
