@@ -46,14 +46,14 @@ def generate_launch_description():
       name='mcu_node',
       output='screen',
     ),
-    Node(
-      package='ydlidar_ros2_driver',
-      executable='ydlidar_ros2_driver_node',
-      name='ydlidar_ros2_driver_node',
-      parameters=[lidar_parameter],
-      emulate_tty=True,
-      output='screen',
-    ),
+    # Node(
+    #   package='ydlidar_ros2_driver',
+    #   executable='ydlidar_ros2_driver_node',
+    #   name='ydlidar_ros2_driver_node',
+    #   parameters=[lidar_parameter],
+    #   emulate_tty=True,
+    #   output='screen',
+    # ),
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource(description_launch_path)
     )
