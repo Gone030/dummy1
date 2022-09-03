@@ -21,7 +21,7 @@ control::control(int pwm_pin, int motor_pin_a, int motor_pin_b, int servo_pin )
     pinMode(pwm_pin_, OUTPUT);
 
     steering_servo.attach(servo_pin_);
-
+    steering_servo.attach(90);
 }
 
 void control::run(double pwm_duty)
