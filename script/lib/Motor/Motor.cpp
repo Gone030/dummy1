@@ -18,18 +18,18 @@ control::control(int pwm_pin, int motor_pin_a, int motor_pin_b, int servo_pin )
 
     pinMode(motor_pin_A_, OUTPUT);
     pinMode(motor_pin_B_, OUTPUT);
-    pinMode(pwm_pin_, OUTPUT); 
+    pinMode(pwm_pin_, OUTPUT);
 
     steering_servo.attach(servo_pin_);
-
+    steering_servo.attach(90);
 }
 
 void control::run(double pwm_duty)
-{   
-    
+{
+
     pwm_duty_ = pwm_duty;
     if(pwm_duty > 0)
-    {  
+    {
         digitalWrite(motor_pin_A_, HIGH);
         digitalWrite(motor_pin_B_, LOW);
     }
@@ -43,11 +43,10 @@ void control::run(double pwm_duty)
 
 float control::steer(float steering_angle)
 {
-    float servo_control_angle;
-    steering_angle_ = constrain(steering_angle, MIN_SERVO_ANGLE, MAX_SERVO_ANGLE);
-    servo_control_angle = mapFloat(steering_angle_, MIN_SERVO_ANGLE, MAX_SERVO_ANGLE, 0, PI) * (180/PI);
+    int servo_control_angle;
+    steering_angle_ = constrain(steering_angle, -1.0, 1.0);
+    servo_control_angle = map(steering_angle_, -1.0, 1.0, MIN_SERVO_ANGLE, MAX_SERVO_ANGLE) * 180/PI;
     steering_servo.write(servo_control_angle);
-
     return steering_angle_;
 }
 
