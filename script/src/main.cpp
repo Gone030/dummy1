@@ -8,6 +8,7 @@
 
 #include <geometry_msgs/msg/twist.h>
 #include <sensor_msgs/msg/imu.h>
+#include <std_msgs/msg/float32.h>
 
 #include "Calculates.h"
 #include "Motor.h"
@@ -16,6 +17,7 @@
 rcl_subscription_t twist_sub;
 rcl_publisher_t odom_velo_pub;
 rcl_publisher_t imu_pub;
+rcl_publisher_t receiveang_pub;
 
 rclc_executor_t executor;
 rclc_support_t support;
@@ -29,7 +31,6 @@ unsigned long prev_cmdvel_time = 0;
 geometry_msgs__msg__Twist twist_msg;
 geometry_msgs__msg__Twist odom_velo;
 sensor_msgs__msg__Imu imu_msg;
-
 
 enum states
 {
@@ -202,7 +203,6 @@ void move()
   float req_anguler_vel_z = twist_msg.angular.z;
   motor.run(pidvel);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
-
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, twist_msg.linear.x);
   //temperary value
   odom_velo.linear.x = current_vel.linear_x;
@@ -216,6 +216,7 @@ void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
   {
     move();
     publishData();
+
   }
 }
 
@@ -239,7 +240,8 @@ bool createEntities()
     &odom_velo_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
-    "odom_velo"));
+    "odom_velo"
+  ));
 
 
   RCCHECK(rclc_publisher_init_best_effort(
@@ -248,6 +250,7 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
     "imu_due"
   ));
+
 
   // For actuating the motor at 20 KHz (temp) 0.05
   const unsigned int timeout = 0.05;
@@ -284,7 +287,6 @@ bool destroyEntities()
   rclc_support_fini(&support);
   rcl_timer_fini(&control_timer);
   rcl_node_fini(&node);
-  //나머지 채워놓을것
   return true;
 }
 void setup()
@@ -297,6 +299,7 @@ void setup()
   attachInterrupt(pZ, encoderReset, FALLING);
 
   bool imu_test = imu.init();
+  motor.servoSet();
 
   if(!imu_test)
   {
