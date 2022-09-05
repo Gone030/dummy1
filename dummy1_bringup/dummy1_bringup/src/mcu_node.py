@@ -40,6 +40,7 @@ class ros22mcu(Node):
         self.x_pose = 0
         self.y_pose = 0
         self.theta = 0
+        self.prev_time = 0
         self.now_time = self.get_clock().now()
         self.dt = (self.now_time - self.prev_time)* 1e-9
         self.prev_time = self.now_time
