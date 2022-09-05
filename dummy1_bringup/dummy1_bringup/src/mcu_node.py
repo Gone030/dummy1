@@ -40,7 +40,7 @@ class ros22mcu(Node):
 
     def odometry(self, vel):
         linear_vel_x = vel.linear.x
-        angular_vel_z = vel.angular.vel.z
+        angular_vel_z = vel.angular.z
         odom_msg = Odometry()
         self.x_pose = 0
         self.y_pose = 0
