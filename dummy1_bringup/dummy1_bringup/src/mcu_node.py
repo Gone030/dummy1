@@ -1,4 +1,3 @@
-from sqlite3 import Timestamp
 import rclpy
 from rclpy.qos import ReliabilityPolicy, QoSProfile
 from rclpy.node import Node
@@ -8,15 +7,11 @@ from rclpy.parameter import Parameter
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
-from std_msgs.msg import Int32
 
 import math
 
 global prv_num
 global missing_num
-
-prv_num = 0
-missing_num = []
 
 class ros22mcu(Node):
 
@@ -40,13 +35,13 @@ class ros22mcu(Node):
 
     def odometry(self, vel):
         linear_vel_x = vel.linear.x
-        angular_vel_z = vel.angular.vel.z
+        angular_vel_z = vel.angular.z
         odom_msg = Odometry()
         self.x_pose = 0
         self.y_pose = 0
         self.theta = 0
         self.now_time = self.get_clock().now()
-        self.dt = (self.now_time - self.prev_time).nanosecond * 1e-9
+        self.dt = (self.now_time - self.prev_time)* 1e-9
         self.prev_time = self.now_time
         self.dtheta = angular_vel_z * self.dt
         self.costh = math.cos(self.theta)
