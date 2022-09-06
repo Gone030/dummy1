@@ -18,11 +18,11 @@ def generate_launch_description():
     [FindPackageShare('dummy1_bringup'), 'param', 'ekf.yaml']
   )
   return LaunchDescription([
-    DeclareLaunchArgument(
-      name='serial_port',
-      default_value='/dev/ttyACM0',
-      description='Serial port'
-    ),
+    # DeclareLaunchArgument(
+    #   name='serial_port',
+    #   default_value='/dev/ttyACM0',
+    #   description='Serial port'
+    # ),
     Node(
       package='robot_localization',
       executable='ekf_node',
@@ -33,27 +33,27 @@ def generate_launch_description():
       ],
       remappings=[("odometry/filtered", "odom")]
     ),
-    Node(
-      package='micro_ros_agent',
-      executable='micro_ros_agent',
-      name='micro_ros_agent',
-      output='screen',
-      arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
-    ),
+    # Node(
+    #   package='micro_ros_agent',
+    #   executable='micro_ros_agent',
+    #   name='micro_ros_agent',
+    #   output='screen',
+    #   arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
+    # ),
     Node(
       package='dummy1_bringup',
       executable='mcu_node',
       name='mcu_node',
       output='screen',
     ),
-    # Node(
-    #   package='ydlidar_ros2_driver',
-    #   executable='ydlidar_ros2_driver_node',
-    #   name='ydlidar_ros2_driver_node',
-    #   parameters=[lidar_parameter],
-    #   emulate_tty=True,
-    #   output='screen',
-    # ),
+    Node(
+      package='ydlidar_ros2_driver',
+      executable='ydlidar_ros2_driver_node',
+      name='ydlidar_ros2_driver_node',
+      parameters=[lidar_parameter],
+      emulate_tty=True,
+      output='screen',
+    ),
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource(description_launch_path)
     )
