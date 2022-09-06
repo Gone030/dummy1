@@ -248,7 +248,7 @@ bool createEntities()
     &odom_velo_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
-    "odom_velo"
+    "odom/unfiltered"
   ));
 
 
@@ -256,7 +256,7 @@ bool createEntities()
     &imu_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-    "imu_due"
+    "imu/data"
   ));
 
 

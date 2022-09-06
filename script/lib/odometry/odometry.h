@@ -6,7 +6,7 @@ class Odom
     private:
         float linear_vel_x_;
         float angular_vel_z_;
-        nav_msgs__msg__Odometry odomety_msg_;
+        nav_msgs__msg__Odometry odometry_msg_;
         float x_pose_;
         float y_pose_;
         float theta_;
