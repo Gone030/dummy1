@@ -34,14 +34,14 @@ def generate_launch_description():
       remappings=[("odometry/filtered", "odom")]
     ),
     Node(
-      package='mpu9250driver',
+      package='ros2_mpu9250_driver',
       executable='mpu9250driver_node',
       name='mpu9250driver_node',
       output='screen',
       remappings=[("imu", "imu/data_raw")]
     ),
     Node(
-      pakage='imu_filter_madgwick',
+      package='imu_filter_madgwick',
       executable='imu_filter',
       name='imu_filter',
       output='screen',
