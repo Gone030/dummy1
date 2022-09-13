@@ -37,13 +37,7 @@ def generate_launch_description():
       executable='mpu9250driver',
       name='mpu9250driver_node',
       output='screen',
-      remappings=[("imu", "imu/data_raw")]
-    ),
-    Node(
-      package='imu_filter_madgwick',
-      executable='imu_filter_madgwick_node',
-      name='imu_filter',
-      output='screen',
+      remappings=[("imu", "imu/data")]
     ),
     # Node(
     #   package='dummy1_bringup',
