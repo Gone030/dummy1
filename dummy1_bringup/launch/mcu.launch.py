@@ -16,6 +16,9 @@ def generate_launch_description():
   ekf_config_path = PathJoinSubstitution(
     [FindPackageShare('dummy1_bringup'), 'param', 'ekf.yaml']
   )
+  mpu_config_path = PathJoinSubstitution(
+    [FindPackageShare('dummy1_bringup'), 'param', 'mpu9250.yaml']
+  )
   return LaunchDescription([
     # DeclareLaunchArgument(
     #   name='serial_port',
@@ -36,6 +39,7 @@ def generate_launch_description():
       package='mpu9250driver',
       executable='mpu9250driver',
       name='mpu9250driver_node',
+      parameters=[mpu_config_path],
       output='screen',
       remappings=[("imu", "imu/data")]
     ),
