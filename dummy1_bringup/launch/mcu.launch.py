@@ -1,4 +1,3 @@
-from platform import node
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
@@ -35,7 +34,7 @@ def generate_launch_description():
     ),
     Node(
       package='mpu9250driver',
-      executable='mpu9250driver_node',
+      executable='mpu9250driver',
       name='mpu9250driver_node',
       output='screen',
       remappings=[("imu", "imu/data_raw")]
