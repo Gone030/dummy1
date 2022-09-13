@@ -33,13 +33,19 @@ def generate_launch_description():
       ],
       remappings=[("odometry/filtered", "odom")]
     ),
-    # Node(
-    #   package='micro_ros_agent',
-    #   executable='micro_ros_agent',
-    #   name='micro_ros_agent',
-    #   output='screen',
-    #   arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
-    # ),
+    Node(
+      package='mpu9250driver',
+      executable='mpu9250driver_node',
+      name='mpu9250driver_node',
+      output='screen',
+      remappings=[("imu", "imu/data_raw")]
+    ),
+    Node(
+      pakage='imu_filter_madgwick',
+      executable='imu_filter',
+      name='imu_filter',
+      output='screen',
+    ),
     # Node(
     #   package='dummy1_bringup',
     #   executable='mcu_node',
