@@ -34,7 +34,7 @@ def generate_launch_description():
       remappings=[("odometry/filtered", "odom")]
     ),
     Node(
-      package='ros2_mpu9250_driver',
+      package='mpu9250driver',
       executable='mpu9250driver_node',
       name='mpu9250driver_node',
       output='screen',
