@@ -41,7 +41,7 @@ def generate_launch_description():
       remappings=[("imu", "imu/data_raw")]
     ),
     Node(
-      pakage='imu_filter_madgwick',
+      package='imu_filter_madgwick',
       executable='imu_filter',
       name='imu_filter',
       output='screen',
