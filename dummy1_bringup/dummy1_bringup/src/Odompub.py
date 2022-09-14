@@ -20,7 +20,7 @@ class odompub(Node):
         self.pubOdo = self.create_publisher(Odometry, 'odom/unfiltered', qos_profile)
 
     def odometry(self, vel):
-        current_time = datetime.datetime.now()
+        current_time = datetime.datetime.now().timestamp()
         linear_vel_x = float(vel.linear.x)
         angular_vel_z = float(vel.angular.z)
 
@@ -30,8 +30,8 @@ class odompub(Node):
         self.theta = 0
         self.costh = math.cos(self.theta)
         self.sinth = math.sin(self.theta)
-        last_vel_time = datetime.datetime.now()
-        dt = float(current_time - last_vel_time)
+        last_vel_time = datetime.datetime.now().timestamp()
+        dt = float(current_time - last_vel_time) * 100000
         self.dtheta = angular_vel_z * dt
         self.delta_x = (linear_vel_x * self.costh) * dt
         self.delta_y = (linear_vel_x * self.sinth) * dt
