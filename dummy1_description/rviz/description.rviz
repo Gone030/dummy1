@@ -18,9 +18,24 @@ Visualization Manager:
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
       Enabled: true
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
       Name: Grid
+      Value: true
     - Alpha: 0.6
       Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
       Description Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -127,10 +142,44 @@ Visualization Manager:
       Show Arrows: true
       Show Axes: true
       Show Names: true
+      Tree:
+        map:
+          odom:
+            base_footprint:
+              base_link:
+                imu_link:
+                  {}
+                laser:
+                  {}
+              driveRwhl_l_link:
+                {}
+              driveRwhl_r_link:
+                {}
+              front_L_bar_link:
+                {}
+              front_L_wheel_link:
+                {}
+              front_R_bar_link:
+                {}
+              front_R_wheel_link:
+                {}
+              steer_link:
+                {}
+              ackermann_bar_link:
+                {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz_default_plugins/Axes
+      Enabled: true
+      Length: 1
+      Name: Axes
+      Radius: 0.001
+      Reference Frame: <Fixed Frame>
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
+    Fixed Frame: base_footprint
     Frame Rate: 30
   Name: root
   Tools:
