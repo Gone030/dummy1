@@ -62,11 +62,11 @@ class odompub(Node):
         odom_msg.pose.covariance[35] = 0.001
 
         odom_msg.twist.twist.linear.x = linear_vel_x
-        odom_msg.twist.twist.linear.y = 0
-        odom_msg.twist.twist.linear.z = 0
+        odom_msg.twist.twist.linear.y = 0.0
+        odom_msg.twist.twist.linear.z = 0.0
 
-        odom_msg.twist.twist.angular.x = 0
-        odom_msg.twist.twist.angular.y = 0
+        odom_msg.twist.twist.angular.x = 0.0
+        odom_msg.twist.twist.angular.y = 0.0
         odom_msg.twist.twist.angular.z = angular_vel_z
 
         odom_msg.twist.covariance[0] = 0.001
