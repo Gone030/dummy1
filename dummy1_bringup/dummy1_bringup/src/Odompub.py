@@ -21,18 +21,18 @@ class odompub(Node):
 
     def odometry(self, vel):
         current_time = datetime.datetime.now()
-        linear_vel_x = vel.linear.x
-        angular_vel_z = vel.angular.z
+        linear_vel_x = float(vel.linear.x)
+        angular_vel_z = float(vel.angular.z)
 
         odom_msg = Odometry()
         self.x_pose = 0
         self.y_pose = 0
         self.theta = 0
-        last_vel_time = datetime.datetime.now()
-        dt = (current_time - last_vel_time)
-        self.dtheta = angular_vel_z * dt
         self.costh = math.cos(self.theta)
         self.sinth = math.sin(self.theta)
+        last_vel_time = datetime.datetime.now()
+        dt = float(current_time - last_vel_time)
+        self.dtheta = angular_vel_z * dt
         self.delta_x = (linear_vel_x * self.costh) * dt
         self.delta_y = (linear_vel_x * self.sinth) * dt
 
