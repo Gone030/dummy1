@@ -13,7 +13,8 @@ class Odom
 
         const void euler_to_qurternion(float roll, float pitch, float yaw, float* q);
     public:
+        nav_msgs__msg__Odometry getData();
         Odom();
         void update(float dt, float linear_vel_x, float angular_vel_z);
-        nav_msgs__msg__Odometry getData();
+
 };

@@ -7,19 +7,13 @@
 #include <rclc/executor.h>
 
 #include <geometry_msgs/msg/twist.h>
-#include <sensor_msgs/msg/imu.h>
-#include <std_msgs/msg/float32.h>
 #include <nav_msgs/msg/odometry.h>
 
 #include "Calculates.h"
 #include "Motor.h"
-#include "Imu.h"
-#include "odometry.h"
 
 rcl_subscription_t twist_sub;
 rcl_publisher_t odom_velo_pub;
-rcl_publisher_t imu_pub;
-rcl_publisher_t receiveang_pub;
 
 rclc_executor_t executor;
 rclc_support_t support;
@@ -32,8 +26,7 @@ unsigned long prev_cmdvel_time = 0;
 unsigned long prev_odom_update = 0;
 
 geometry_msgs__msg__Twist twist_msg;
-sensor_msgs__msg__Imu imu_msg;
-nav_msgs__msg__Odometry odom_msg;
+geometry_msgs__msg__Twist odom_velo_msg;
 
 enum states
 {
@@ -62,7 +55,7 @@ int max_val = 255;
 #define pwm_pin 7
 #define motor_pin_a 2
 #define motor_pin_b 3
-#define servo_pin 6
+#define servo_pin 4
 
 #define pA 10
 #define pB 11
@@ -80,8 +73,6 @@ unsigned long prev_count_tick = 0;
 
 control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
 Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
-Imu imu;
-Odom odom;
 
 
 
@@ -162,40 +153,22 @@ void subcmdvel_callback(const void *msgin)
 }
 
 
-void syncTime()
-{
-  unsigned long now = millis();
-  RCCHECK(rmw_uros_sync_session(10));
-  unsigned long long ros_time_ms = rmw_uros_epoch_millis();
-  time_offset = ros_time_ms - now;
-}
-struct timespec getTime()
-{
-  struct  timespec tp = {0};
-  unsigned long long now = millis() + time_offset;
-  tp.tv_sec = now / 1000;
-  tp.tv_nsec = (now % 1000) * 100000;
+// void syncTime()
+// {
+//   unsigned long now = millis();
+//   RCCHECK(rmw_uros_sync_session(10));
+//   unsigned long long ros_time_ms = rmw_uros_epoch_millis();
+//   time_offset = ros_time_ms - now;
+// }
+// struct timespec getTime()
+// {
+//   struct  timespec tp = {0};
+//   unsigned long long now = millis() + time_offset;
+//   tp.tv_sec = now / 1000;
+//   tp.tv_nsec = (now % 1000) * 100000;
 
-  return tp;
-}
-
-void publishData()
-{
-  imu_msg = imu.getdata();
-
-  struct timespec time_stamp = getTime();
-
-  imu_msg.header.stamp.sec = time_stamp.tv_sec;
-  imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
-
-  odom_msg.header.stamp.sec = time_stamp.tv_sec;
-  odom_msg.header.stamp.nanosec = time_stamp.tv_nsec;
-
-  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
-  RCSOFTCHECK(rcl_publish(&odom_velo_pub, &odom_msg, NULL));
-}
-
-
+//   return tp;
+// }
 
 void move()
 {
@@ -210,12 +183,26 @@ void move()
   float req_anguler_vel_z = twist_msg.angular.z;
   motor.run(pidvel);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
-  Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, twist_msg.linear.x);
+  Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);
 
-  unsigned long now = millis();
-  float dt = (now  - prev_odom_update) / 1000.0;
-  prev_odom_update = now;
-  odom.update(dt, current_vel.linear_x, current_vel.anguler_z);
+  odom_velo_msg.linear.x = current_vel.linear_x;
+  odom_velo_msg.angular.z = current_vel.anguler_z;
+
+  // unsigned long now = millis();
+  // float dt = (now  - prev_odom_update) / 1000.0;
+
+  // prev_odom_update = now;
+}
+
+void publishData()
+{
+  RCSOFTCHECK(rcl_publish(&odom_velo_pub, &odom_velo_msg, NULL));
+  // struct timespec time_stamp = getTime();
+
+  // odom_msg.header.stamp.sec = time_stamp.tv_sec;
+  // odom_msg.header.stamp.nanosec = time_stamp.tv_nsec;
+
+ // RCSOFTCHECK(rcl_publish(&odom_velo_pub, &odom_msg, NULL));
 }
 
 void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
@@ -247,21 +234,19 @@ bool createEntities()
   RCCHECK(rclc_publisher_init_best_effort(
     &odom_velo_pub,
     &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
-    "odom/unfiltered"
-  ));
+    ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+    "odom_velo"
+  ))
+  // RCCHECK(rclc_publisher_init_best_effort(
+  //   &odom_velo_pub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
+  //   "odom/unfiltered"
+  // ));
 
 
-  RCCHECK(rclc_publisher_init_best_effort(
-    &imu_pub,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-    "imu/data"
-  ));
 
-
-  // For actuating the motor at 20 KHz (temp) 0.05
-  const unsigned int timeout = 0.05;
+  const unsigned int timeout = 20;
   RCCHECK(rclc_timer_init_default(
     &control_timer,
     &support,
@@ -279,7 +264,7 @@ bool createEntities()
     ON_NEW_DATA
   ));
   RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
-  syncTime();
+  // syncTime();
   return true;
 }
 
@@ -288,7 +273,6 @@ bool destroyEntities()
   rmw_context_t * rmw_context = rcl_context_get_rmw_context(&support.context);
   (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
-  rcl_publisher_fini(&imu_pub, &node);
   rcl_publisher_fini(&odom_velo_pub, &node);
   rcl_subscription_fini(&twist_sub, &node);
   rclc_executor_fini(&executor);
@@ -300,31 +284,15 @@ bool destroyEntities()
 void setup()
 {
   Serial.begin(115200);
-  Wire.begin();
+  set_microros_transports();
+  pinMode(13, OUTPUT);
+
 
   attachInterrupt(pA, encoderCount, FALLING);
   pinMode(pB, INPUT);
   attachInterrupt(pZ, encoderReset, FALLING);
 
-  bool imu_test = imu.init();
-  motor.servoSet();
-
-  if(!imu_test)
-  {
-    while(1)
-    {
-      for(int i=0; i<4; i++)
-      {
-      digitalWrite(13,HIGH);
-      delay(150);
-      digitalWrite(13,LOW);
-      delay(150);
-      }
-      delay(1000);
-    }
-  }
-  pinMode(13,OUTPUT);
-  set_microros_transports();
+  state = Waiting_agent;
 }
 
 void loop()

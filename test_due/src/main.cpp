@@ -6,7 +6,7 @@
 #define pwm_pin 7
 #define motor_pin_a 2
 #define motor_pin_b 3
-#define servo_pin 6
+#define servo_pin 4
 
 #define pA 10
 #define pB 11
@@ -22,6 +22,7 @@ volatile signed char dir_ = 1;
 float vel_ = 0.0;
 int temp_ = 0;
 bool flag_ = false;
+float pi = 3.14;
 
 unsigned long prev_count_time = 0;
 unsigned long prev_count_tick = 0;
@@ -136,12 +137,12 @@ void loop()
       {}
     }
   }
-  // motor.steer(vel_);
+  motor.steer(vel_ * 180/pi);
   // motor.run(vel_);
-  float calcRPM = calc.CalculateRpm(vel_); //모터에 적용되는 값을 rpm으로 변환
-  float ecdRPM = getRPM(); //엔코더로 얻은 실제 rpm
-  double pidvel = pidcompute(calcRPM, ecdRPM);
-  motor.run(pidvel);
+  // float calcRPM = calc.CalculateRpm(vel_); //모터에 적용되는 값을 rpm으로 변환
+  // float ecdRPM = getRPM(); //엔코더로 얻은 실제 rpm
+  // double pidvel = pidcompute(calcRPM, ecdRPM);
+  // motor.run(pidvel);
   // Serial.println(pidvel);
   // Serial.print(calcRPM);
   // Serial.print(',');
