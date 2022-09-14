@@ -1,4 +1,3 @@
-from platform import node
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
@@ -17,6 +16,9 @@ def generate_launch_description():
   ekf_config_path = PathJoinSubstitution(
     [FindPackageShare('dummy1_bringup'), 'param', 'ekf.yaml']
   )
+  mpu_config_path = PathJoinSubstitution(
+    [FindPackageShare('dummy1_bringup'), 'param', 'mpu9250.yaml']
+  )
   return LaunchDescription([
     # DeclareLaunchArgument(
     #   name='serial_port',
@@ -33,19 +35,20 @@ def generate_launch_description():
       ],
       remappings=[("odometry/filtered", "odom")]
     ),
-    # Node(
-    #   package='micro_ros_agent',
-    #   executable='micro_ros_agent',
-    #   name='micro_ros_agent',
-    #   output='screen',
-    #   arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
-    # ),
-    # Node(
-    #   package='dummy1_bringup',
-    #   executable='mcu_node',
-    #   name='mcu_node',
-    #   output='screen',
-    # ),
+    Node(
+      package='mpu9250driver',
+      executable='mpu9250driver',
+      name='mpu9250driver_node',
+      parameters=[mpu_config_path],
+      output='screen',
+      remappings=[("imu", "imu/data")]
+    ),
+    Node(
+      package='dummy1_bringup',
+      executable='Odompub',
+      name='Odompub',
+      output='screen',
+    ),
     Node(
       package='ydlidar_ros2_driver',
       executable='ydlidar_ros2_driver_node',
