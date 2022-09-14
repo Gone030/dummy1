@@ -43,12 +43,12 @@ def generate_launch_description():
       output='screen',
       remappings=[("imu", "imu/data")]
     ),
-    # Node(
-    #   package='dummy1_bringup',
-    #   executable='mcu_node',
-    #   name='mcu_node',
-    #   output='screen',
-    # ),
+    Node(
+      package='dummy1_bringup',
+      executable='Odompub',
+      name='Odompub',
+      output='screen',
+    ),
     Node(
       package='ydlidar_ros2_driver',
       executable='ydlidar_ros2_driver_node',
