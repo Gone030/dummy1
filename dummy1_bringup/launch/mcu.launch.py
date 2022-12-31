@@ -58,6 +58,7 @@ def generate_launch_description():
       parameters=[lidar_parameter],
       emulate_tty=True,
       output='screen',
+      remappings=[("base/scan", "/scan")]
     ),
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource(description_launch_path)
