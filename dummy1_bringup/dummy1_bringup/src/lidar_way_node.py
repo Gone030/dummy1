@@ -1,11 +1,9 @@
-from distutils.log import info
-from multiprocessing import get_logger
 
 import rclpy
-from rclpy.node import Node
-from sensor_msgs.msg import LaserScan
-from rclpy.qos import QoSProfile, ReliabilityPolicy
 from msg_srv_act_interface.msg import LidarinfoMsg
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import LaserScan
 
 
 def Rad2Deg(rad):
