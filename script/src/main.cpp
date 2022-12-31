@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <stdio.h>
+
 #include <micro_ros_arduino.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
@@ -11,6 +12,7 @@
 
 #include "Calculates.h"
 #include "Motor.h"
+#include "PID.h"
 
 rcl_subscription_t twist_sub;
 rcl_publisher_t odom_velo_pub;
@@ -51,12 +53,14 @@ float kd = 0;
 int min_val = -255;
 int max_val = 255;
 
-
-#define pwm_pin 7
-#define motor_pin_a 2
-#define motor_pin_b 3
+//motor config
+#define motor_pin_F 2
+#define motor_pin_R 3
+#define motor_pin_F_EN 5
+#define motor_pin_R_EN 6
 #define servo_pin 4
 
+//encoder config
 #define pA 10
 #define pB 11
 #define pZ 12
@@ -71,7 +75,16 @@ int temp_ = 0;
 unsigned long prev_count_time = 0;
 unsigned long prev_count_tick = 0;
 
-control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
+//PID config
+#define kp 0.3
+#define ki 0.5
+#define kd 0.0
+
+int min_val = -255;
+int max_val = 255;
+
+PID pid(min_val, max_val, kp, ki, kd);
+control motor(motor_pin_F, motor_pin_R, motor_pin_F_EN, motor_pin_R_EN, servo_pin);
 Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
 
 
@@ -127,25 +140,6 @@ float getRPM()
   return (delta_tick / Count_per_Revolution) / dtm;
 }
 
-double pidcompute(float setpoint, float measured_value)
-{
-  double error;
-  double pid;
-
-  error = setpoint - measured_value;
-  integral += error;
-  derivative = error - prev_error;
-
-  if (setpoint == 0 && error == 0)
-  {
-    integral = 0;
-    derivative = 0;
-  }
-  pid = (kp * error); //+ (ki * integral) + (kd * derivative);
-  prev_error = error;
-
-  return constrain(pid, min_val, max_val);
-}
 void subcmdvel_callback(const void *msgin)
 {
   digitalWrite(13, !digitalRead(13));
@@ -179,7 +173,7 @@ void move()
   }
   float calc_dc_rpm = calculates.CalculateRpm(twist_msg.linear.x);
   float ecd_rpm = getRPM();
-  double pidvel = pidcompute(calc_dc_rpm, ecd_rpm);
+  double pidvel = pid.pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z;
   motor.run(pidvel);
   float current_steering_angle = motor.steer(req_anguler_vel_z);

@@ -5,16 +5,17 @@
 #define MIN_SERVO_ANGLE 1.0472 //rad
 
 Servo steering_servo;
-control::control(int pwm_pin, int motor_pin_a, int motor_pin_b, int servo_pin )
+control::control(int motor_pin_F, int motor_pin_R, int motor_pin_F_EN, int motor_pin_R_EN, int servo_pin ):
+    motor_pin_F_(motor_pin_F),
+    motor_pin_R_(motor_pin_R),
+    motor_pin_F_EN_(motor_pin_F_EN),
+    motor_pin_R_EN_(motor_pin_R_EN),
+    servo_pin_(servo_pin)
 {
-    pwm_pin_ = pwm_pin;
-    motor_pin_A_ = motor_pin_a;
-    motor_pin_B_ = motor_pin_b;
-    servo_pin_ = servo_pin;
-
-    pinMode(motor_pin_A_, OUTPUT);
-    pinMode(motor_pin_B_, OUTPUT);
-    pinMode(pwm_pin_, OUTPUT);
+    pinMode(motor_pin_F_, OUTPUT);
+    pinMode(motor_pin_R_, OUTPUT);
+    pinMode(motor_pin_F_EN_, OUTPUT);
+    pinMode(motor_pin_R_EN_, OUTPUT);
 
     steering_servo.attach(servo_pin_);
     steering_servo.write(90);
@@ -22,19 +23,30 @@ control::control(int pwm_pin, int motor_pin_a, int motor_pin_b, int servo_pin )
 
 void control::run(double pwm_duty)
 {
-    pwm_duty_ = pwm_duty;
-    if(pwm_duty_ > 0)
+    pwm_duty_ = (int)abs(pwm_duty);
+    if(pwm_duty > 0)
     {
-        digitalWrite(motor_pin_A_, HIGH);
-        digitalWrite(motor_pin_B_, LOW);
+        digitalWrite(motor_pin_F_EN_, HIGH);
+        digitalWrite(motor_pin_R_EN_, HIGH);
+        analogWrite(motor_pin_F_,pwm_duty_);
+        analogWrite(motor_pin_R_,0);
+    }
+    else if(pwm_duty < 0)
+    {
+        digitalWrite(motor_pin_F_EN_, HIGH);
+        digitalWrite(motor_pin_R_EN_, HIGH);
+        analogWrite(motor_pin_F_,0);
+        analogWrite(motor_pin_R_,pwm_duty_);
     }
     else
     {
-        digitalWrite(motor_pin_A_, LOW);
-        digitalWrite(motor_pin_B_, HIGH);
+        digitalWrite(motor_pin_F_EN_, HIGH);
+        digitalWrite(motor_pin_R_EN_, HIGH);
+        analogWrite(motor_pin_F_,0);
+        analogWrite(motor_pin_R_,0);
+        digitalWrite(motor_pin_F_EN_, LOW);
+        digitalWrite(motor_pin_R_EN_, LOW);
     }
-    pwm_duty_ = constrain(pwm_duty_,-255,255);
-    analogWrite(pwm_pin_, pwm_duty_);
 }
 
 float control::steer(float steering_angle)

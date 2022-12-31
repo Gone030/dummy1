@@ -2,10 +2,12 @@
 
 #include "Motor.h"
 #include "Calculates.h"
+#include "PID.h"
 
-#define pwm_pin 7
-#define motor_pin_a 2
-#define motor_pin_b 3
+#define motor_pin_F 2
+#define motor_pin_R 3
+#define motor_pin_F_EN 5
+#define motor_pin_R_EN 6
 #define servo_pin 4
 
 #define pA 10
@@ -27,16 +29,15 @@ float pi = 3.14;
 unsigned long prev_count_time = 0;
 unsigned long prev_count_tick = 0;
 
-double integral; // pid variable
-double derivative;
-double prev_error;
-float kp = 20;
-float ki = 5;
-float kd = 0;
+
+#define kp 20.0
+#define ki 5.0
+#define kd 0.0
 int min_val = -255;
 int max_val = 255;
+PID pid(min_val, max_val, kp, ki, kd);
 
-control motor(pwm_pin, motor_pin_a, motor_pin_b, servo_pin);
+control motor(motor_pin_F, motor_pin_R, motor_pin_F_EN, motor_pin_R_EN, servo_pin);
 
 void encoderCount()
 {
@@ -66,33 +67,7 @@ float getRPM() // 엔코더 rpm 계산
   return (delta_tick / Count_per_Revolution) / dtm;
 }
 
-double pidcompute(float setpoint, float measured_value) // (목표 rpm , 실제 rpm)
-{
-  double error;
-  double pid;
-  // unsigned long currentTime = 0, previousTime = 0;
-  // double elapsedTime = 0;
-  // currentTime = millis();
 
-  error = setpoint - measured_value;
-  // integral +=  ki*error*elapsedTime;
-  // derivative = (error - prev_error)/elapsedTime;
-
-  if (setpoint == 0 && error == 0)
-  {
-    pid = 0;
-    integral = 0;
-    derivative = 0;
-  }
-  // pid = (kp * error) + (integral) + (kd * derivative);
-  pid = (kp * error);
-  prev_error = error;
-  // previousTime = currentTime;
-  if(pid == 0)
-    { return pid;}
-  else
-    return constrain(pid, min_val, max_val);
-}
 
 void setup()
 {
