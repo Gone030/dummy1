@@ -46,14 +46,6 @@ enum states
 float wheel_diameter = 0.073;
 float wheel_distence_x = 0.183;
 
-double integral; // pid variable
-double derivative;
-double prev_error;
-float kp = 20;
-float ki = 0;
-float kd = 0;
-int min_val = -255;
-int max_val = 255;
 
 //motor config
 #define motor_pin_F 2
@@ -88,7 +80,6 @@ int max_val = 255;
 PID pid(min_val, max_val, kp, ki, kd);
 control motor(motor_pin_F, motor_pin_R, motor_pin_F_EN, motor_pin_R_EN, servo_pin);
 Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
-
 
 
 void error_loop(){
@@ -227,12 +218,12 @@ bool createEntities()
     "cmd_vel"
   ));
 
-  RCCHECK(rclc_subscription_init_best_effort(
-    &pid_sub,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(dummy1_msg, msg, pid),
-    "pid_topic"
-  ));
+  // RCCHECK(rclc_subscription_init_best_effort(
+  //   &pid_sub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(dummy1_msg, msg, pid),
+  //   "pid_topic"
+  // ));
 
   RCCHECK(rclc_publisher_init_best_effort(
     &odom_velo_pub,
