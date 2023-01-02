@@ -292,7 +292,6 @@ bool createEntities()
     ON_NEW_DATA
   ));
   RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
-  // syncTime();
   return true;
 }
 
