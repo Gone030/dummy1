@@ -9,12 +9,14 @@
 
 #include <geometry_msgs/msg/twist.h>
 #include <nav_msgs/msg/odometry.h>
+#include <dummy1_msg/msg/pid.h>
 
 #include "Calculates.h"
 #include "Motor.h"
 #include "PID.h"
 
 rcl_subscription_t twist_sub;
+rcl_subscription_t pid_sub;
 rcl_publisher_t odom_velo_pub;
 
 rclc_executor_t executor;
@@ -225,12 +227,19 @@ bool createEntities()
     "cmd_vel"
   ));
 
+  RCCHECK(rclc_subscription_init_best_effort(
+    &pid_sub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(dummy1_msg, msg, pid),
+    "pid_topic"
+  ));
+
   RCCHECK(rclc_publisher_init_best_effort(
     &odom_velo_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "odom_velo"
-  ))
+  ));
   // RCCHECK(rclc_publisher_init_best_effort(
   //   &odom_velo_pub,
   //   &node,
