@@ -250,13 +250,6 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "odom_velo"
   ));
-  // RCCHECK(rclc_publisher_init_best_effort(
-  //   &odom_velo_pub,
-  //   &node,
-  //   ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
-  //   "odom/unfiltered"
-  // ));
-
 
 
   const unsigned int timeout = 20;
@@ -310,6 +303,9 @@ bool destroyEntities()
 
   rcl_publisher_fini(&odom_velo_pub, &node);
   rcl_subscription_fini(&twist_sub, &node);
+  rcl_subscription_fini(&p_sub, &node);
+  rcl_subscription_fini(&i_sub, &node);
+  rcl_subscription_fini(&d_sub, &node);
   rclc_executor_fini(&executor);
   rclc_support_fini(&support);
   rcl_timer_fini(&control_timer);
