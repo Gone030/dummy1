@@ -35,9 +35,15 @@ double PID::pidcompute(float setpoint, float measured_value)
         return constrain(pid, min_value_, max_value_);
 }
 
-void PID::updateparam(double kp, double ki, double kd)
+void PID::updatepvel(double kp)
 {
     kp_ = kp;
+}
+void PID::updateivel(double ki)
+{
     ki_ = ki;
+}
+void PID::updatedvel(double kd)
+{
     kd_ = kd;
 }

@@ -8,15 +8,17 @@
 #include <rclc/executor.h>
 
 #include <geometry_msgs/msg/twist.h>
-#include <nav_msgs/msg/odometry.h>
-#include <dummy1_msg/msg/pid.h>
+// #include <nav_msgs/msg/odometry.h>
+#include <std_msgs/msg/float64.h>
 
 #include "Calculates.h"
 #include "Motor.h"
 #include "PID.h"
 
 rcl_subscription_t twist_sub;
-rcl_subscription_t pid_sub;
+rcl_subscription_t p_sub;
+rcl_subscription_t i_sub;
+rcl_subscription_t d_sub;
 rcl_publisher_t odom_velo_pub;
 
 rclc_executor_t executor;
@@ -31,6 +33,10 @@ unsigned long prev_odom_update = 0;
 
 geometry_msgs__msg__Twist twist_msg;
 geometry_msgs__msg__Twist odom_velo_msg;
+std_msgs__msg__Float64 p_msg;
+std_msgs__msg__Float64 i_msg;
+std_msgs__msg__Float64 d_msg;
+
 
 enum states
 {
@@ -139,23 +145,25 @@ void subcmdvel_callback(const void *msgin)
   prev_cmdvel_time = millis();
 }
 
+void subpvel_callback(const void *msgin)
+{
+  const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
+  msg->data;
+  pid.updatepvel(p_msg.data);
+}
+void subivel_callback(const void *msgin)
+{
+  const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
+  msg->data;
+  pid.updateivel(i_msg.data);
+}
+void subdvel_callback(const void *msgin)
+{
+  const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
+  msg->data;
+  pid.updatedvel(d_msg.data);
+}
 
-// void syncTime()
-// {
-//   unsigned long now = millis();
-//   RCCHECK(rmw_uros_sync_session(10));
-//   unsigned long long ros_time_ms = rmw_uros_epoch_millis();
-//   time_offset = ros_time_ms - now;
-// }
-// struct timespec getTime()
-// {
-//   struct  timespec tp = {0};
-//   unsigned long long now = millis() + time_offset;
-//   tp.tv_sec = now / 1000;
-//   tp.tv_nsec = (now % 1000) * 100000;
-
-//   return tp;
-// }
 
 void move()
 {
@@ -218,13 +226,24 @@ bool createEntities()
     "cmd_vel"
   ));
 
-  // RCCHECK(rclc_subscription_init_best_effort(
-  //   &pid_sub,
-  //   &node,
-  //   ROSIDL_GET_MSG_TYPE_SUPPORT(dummy1_msg, msg, pid),
-  //   "pid_topic"
-  // ));
-
+  RCCHECK(rclc_subscription_init_best_effort(
+    &p_sub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "p_vel"
+  ));
+  RCCHECK(rclc_subscription_init_best_effort(
+    &i_sub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "i_vel"
+  ));
+  RCCHECK(rclc_subscription_init_best_effort(
+    &d_sub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "d_vel"
+  ));
   RCCHECK(rclc_publisher_init_best_effort(
     &odom_velo_pub,
     &node,
@@ -255,6 +274,28 @@ bool createEntities()
     &twist_sub,
     &twist_msg,
     &subcmdvel_callback,
+    ON_NEW_DATA
+  ));
+
+  RCCHECK(rclc_executor_add_subscription(
+    &executor,
+    &p_sub,
+    &p_msg,
+    &subpvel_callback,
+    ON_NEW_DATA
+  ));
+  RCCHECK(rclc_executor_add_subscription(
+    &executor,
+    &i_sub,
+    &i_msg,
+    &subivel_callback,
+    ON_NEW_DATA
+  ));
+  RCCHECK(rclc_executor_add_subscription(
+    &executor,
+    &d_sub,
+    &d_msg,
+    &subdvel_callback,
     ON_NEW_DATA
   ));
   RCCHECK(rclc_executor_add_timer(&executor, &control_timer));

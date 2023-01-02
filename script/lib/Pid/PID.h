@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include <std_msgs/msg/float64.h>
 class PID
 {
     private:
@@ -16,5 +16,7 @@ class PID
     public:
         PID(int min_value, int max_value, double kp, double ki, double kd);
         double pidcompute(float setpoint, float mesured_value);
-        void updateparam(double kp, double ki, double kd);
+        void updatepvel(double kp);
+        void updateivel(double ki);
+        void updatedvel(double kd);
 };
