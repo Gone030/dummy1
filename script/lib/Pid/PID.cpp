@@ -15,24 +15,20 @@ double PID::pidcompute(float setpoint, float measured_value)
     double error;
     double pid;
 
-    unsigned long current_time_ = millis();
-    unsigned long dt = prev_time_ - current_time_;
+    // unsigned long dt = prev_time_ - current_time_;
     error = setpoint - measured_value;
-    integral_ += ki_*error*(double)dt;
-    derivative_ = (error - prev_error_)/(double)dt;
+    integral_ += error; // (double)dt;
+    derivative_ = (error - prev_error_) ; //(double)dt;
 
     if (setpoint == 0 && error == 0)
     {
         integral_ = 0;
         derivative_ = 0;
     }
-    pid = (kp_ * error) + integral_ + (kd_ * derivative_);
+    pid = (kp_ * error) + (ki_ * integral_) + (kd_ * derivative_);
     prev_error_ = error;
-    prev_time_ = current_time_;
-    if(pid == 0)
-        { return pid;}
-    else
-        return constrain(pid, min_value_, max_value_);
+
+    return constrain(pid, min_value_, max_value_);
 }
 
 void PID::updatepvel(double kp)

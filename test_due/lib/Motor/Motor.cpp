@@ -63,3 +63,8 @@ float control::mapFloat(float x, float in_min, float in_max, float out_min, floa
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+int control::velreturn()
+{
+    return pwm_duty_;
+}
