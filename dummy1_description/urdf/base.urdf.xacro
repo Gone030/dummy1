@@ -17,6 +17,7 @@
     <material name="Green">
         <color rgba="0.0 1.0 0.0 1.0"/>
     </material>
+        <link name="base_footprint"/>
 
         <link name="base_link">
             <visual>
@@ -29,10 +30,9 @@
                 </material>
             </visual>
         </link>
-        <link name="base_footprint"/>
         <joint name="base_joint" type="fixed">
-            <parent link="base_link"/>
-            <child link="base_footprint"/>
+            <parent link="base_footprint"/>
+            <child link="base_link"/>
             <origin xyz="0.0 0.0 ${-(wheel_radius+wheel_zoff)}" rpy="0.0 0.0 0.0"/>
         </joint>
         <link name="laser">

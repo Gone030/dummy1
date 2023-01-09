@@ -40,9 +40,6 @@ class odompub(Node):
         self.y_pose += self.delta_y
         self.theta += self.dtheta
 
-        odom_msg.header.frame_id = 'odom'
-        odom_msg.child_frame_id = 'base_footprint'
-        self.pubOdo.publish(odom_msg)
 
         q = self.euler_to_quaternion(0, 0, angular_vel_z)
 
