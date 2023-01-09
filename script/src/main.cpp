@@ -19,6 +19,8 @@ rcl_subscription_t twist_sub;
 rcl_subscription_t p_sub;
 rcl_subscription_t i_sub;
 rcl_subscription_t d_sub;
+rcl_publisher_t enc_pub;
+rcl_publisher_t rpm_pub;
 rcl_publisher_t odom_velo_pub;
 
 rclc_executor_t executor;
@@ -32,6 +34,8 @@ unsigned long prev_cmdvel_time = 0;
 unsigned long prev_odom_update = 0;
 
 geometry_msgs__msg__Twist twist_msg;
+std_msgs__msg__Float64 goal_vel;
+std_msgs__msg__Float64 rpm_msg;
 geometry_msgs__msg__Twist odom_velo_msg;
 std_msgs__msg__Float64 p_msg;
 std_msgs__msg__Float64 i_msg;
@@ -49,15 +53,15 @@ enum states
 
 #define max_rpm 18000
 
-float wheel_diameter = 0.073;
-float wheel_distence_x = 0.183;
+float wheel_diameter = 7.3; //cm
+float wheel_distence_x = 17.3;
 
 
 //motor config
-#define motor_pin_F 2
-#define motor_pin_R 3
-#define motor_pin_F_EN 5
-#define motor_pin_R_EN 6
+#define motor_pin_R 2
+#define motor_pin_L 3
+#define motor_pin_R_EN 5
+#define motor_pin_L_EN 6
 #define servo_pin 4
 
 //encoder config
@@ -73,18 +77,26 @@ int vel_ = 0;
 int temp_ = 0;
 
 unsigned long prev_count_time = 0;
-unsigned long prev_count_tick = 0;
+long prev_count_tick = 0;
+float prev_encoder_vel = 0;
 
 //PID config
-#define kp 0.3
-#define ki 0.5
-#define kd 0.0
-
+#define kp 2.7
+#define ki 0.1
+#define kd 2
 int min_val = -255;
 int max_val = 255;
 
+//이동평균필터
+const int numReadings = 5;
+double readings[numReadings];
+int readindex = 0;
+double total = 0;
+double average = 0;
+
+
 PID pid(min_val, max_val, kp, ki, kd);
-control motor(motor_pin_F, motor_pin_R, motor_pin_F_EN, motor_pin_R_EN, servo_pin);
+control motor(motor_pin_R, motor_pin_L, motor_pin_R_EN, motor_pin_L_EN, servo_pin);
 Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
 
 
@@ -128,15 +140,24 @@ float getRPM()
 {
   long current_tick = returnCount();
   unsigned long current_time = micros();
-  unsigned long dt = current_time - prev_count_tick;
+  unsigned long dt = current_time - prev_count_time;
+  double delta_tick = (double)(current_tick - prev_count_tick);
 
-  double dtm = (double)dt / 60000000;
-  double delta_tick = current_tick - prev_count_tick;
+  double dtm = (double)dt / 1000000;
 
   prev_count_tick = current_tick;
   prev_count_time = current_time;
-
-  return (delta_tick / Count_per_Revolution) / dtm;
+  float current_encoder_vel = (60 * delta_tick / Count_per_Revolution) / dtm;
+  if(abs(prev_encoder_vel - current_encoder_vel) > 200)
+  {
+    return prev_encoder_vel;
+  }
+  else
+  {
+    prev_encoder_vel = current_encoder_vel;
+    return current_encoder_vel;
+  }
+  // return constrain((60 * delta_tick / Count_per_Revolution) / dtm , -100, 100);
 }
 
 void subcmdvel_callback(const void *msgin)
@@ -148,19 +169,19 @@ void subcmdvel_callback(const void *msgin)
 void subpvel_callback(const void *msgin)
 {
   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
-  msg->data;
+  p_msg.data = msg -> data ;
   pid.updatepvel(p_msg.data);
 }
 void subivel_callback(const void *msgin)
 {
   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
-  msg->data;
+  i_msg.data = msg->data;
   pid.updateivel(i_msg.data);
 }
 void subdvel_callback(const void *msgin)
 {
   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
-  msg->data;
+  i_msg.data = msg->data;
   pid.updatedvel(d_msg.data);
 }
 
@@ -174,9 +195,23 @@ void move()
   }
   float calc_dc_rpm = calculates.CalculateRpm(twist_msg.linear.x);
   float ecd_rpm = getRPM();
+  goal_vel.data = (float)calc_dc_rpm;
   double pidvel = pid.pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z;
-  motor.run(pidvel);
+
+  //*이동평균
+  total = total - readings[readindex];
+  readings[readindex] = pidvel;
+  total = total + readings[readindex];
+  readindex++;
+  if (readindex >= numReadings)
+  {
+    readindex = 0;
+  }
+  average = total / numReadings;
+  //*
+  rpm_msg.data = (float)average;
+  motor.run(average);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);
 
@@ -192,6 +227,8 @@ void move()
 void publishData()
 {
   RCSOFTCHECK(rcl_publish(&odom_velo_pub, &odom_velo_msg, NULL));
+  RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
+  RCSOFTCHECK(rcl_publish(&rpm_pub, &rpm_msg, NULL));
   // struct timespec time_stamp = getTime();
 
   // odom_msg.header.stamp.sec = time_stamp.tv_sec;
@@ -226,19 +263,19 @@ bool createEntities()
     "cmd_vel"
   ));
 
-  RCCHECK(rclc_subscription_init_best_effort(
+  RCCHECK(rclc_subscription_init_default(
     &p_sub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
     "p_vel"
   ));
-  RCCHECK(rclc_subscription_init_best_effort(
+  RCCHECK(rclc_subscription_init_default(
     &i_sub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
     "i_vel"
   ));
-  RCCHECK(rclc_subscription_init_best_effort(
+  RCCHECK(rclc_subscription_init_default(
     &d_sub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
@@ -250,9 +287,21 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "odom_velo"
   ));
+  RCCHECK(rclc_publisher_init_best_effort(
+    &enc_pub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "goal_vel"
+  ));
+  RCCHECK(rclc_publisher_init_best_effort(
+    &rpm_pub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "rpm_vel"
+  ));
 
 
-  const unsigned int timeout = 20;
+  const unsigned int timeout = 40;
   RCCHECK(rclc_timer_init_default(
     &control_timer,
     &support,
@@ -260,7 +309,7 @@ bool createEntities()
     controlcallback
   ));
   executor = rclc_executor_get_zero_initialized_executor();
-  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 5, &allocator));
 
   RCCHECK(rclc_executor_add_subscription(
     &executor,
@@ -291,6 +340,7 @@ bool createEntities()
     &subdvel_callback,
     ON_NEW_DATA
   ));
+
   RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
   return true;
 }
@@ -300,6 +350,8 @@ bool destroyEntities()
   rmw_context_t * rmw_context = rcl_context_get_rmw_context(&support.context);
   (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
+  rcl_publisher_fini(&enc_pub, &node);
+  rcl_publisher_fini(&rpm_pub, &node);
   rcl_publisher_fini(&odom_velo_pub, &node);
   rcl_subscription_fini(&twist_sub, &node);
   rcl_subscription_fini(&p_sub, &node);

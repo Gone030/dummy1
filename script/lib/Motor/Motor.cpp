@@ -23,7 +23,7 @@ control::control(int motor_pin_F, int motor_pin_R, int motor_pin_F_EN, int motor
 
 void control::run(double pwm_duty)
 {
-    pwm_duty_ = (int)abs(pwm_duty);
+    pwm_duty_ = (int)abs(pwm_duty) / 4;
     if(pwm_duty > 0)
     {
         digitalWrite(motor_pin_F_EN_, HIGH);
@@ -51,7 +51,7 @@ void control::run(double pwm_duty)
 
 float control::steer(float steering_angle)
 {
-    temp_ = mapFloat(steering_angle, -1.0, 1.0, MIN_SERVO_ANGLE, MAX_SERVO_ANGLE) * 180/PI;
+    temp_ = mapFloat(-steering_angle, -1.0, 1.0, MIN_SERVO_ANGLE, MAX_SERVO_ANGLE) * 180/PI;
     servo_control_angle = (int)temp_;
     servo_control_angle = constrain(servo_control_angle, 75, 105);
     steering_servo.write(servo_control_angle);
