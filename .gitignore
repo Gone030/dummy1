@@ -1,3 +1,6 @@
 .vscode/
 test
 .DS_Store
+log
+install
+build
