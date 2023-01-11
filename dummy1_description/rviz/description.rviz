@@ -151,22 +151,22 @@ Visualization Manager:
                   {}
                 laser:
                   {}
-              driveRwhl_l_link:
-                {}
-              driveRwhl_r_link:
-                {}
-              front_L_bar_link:
-                {}
-              front_L_wheel_link:
-                {}
-              front_R_bar_link:
-                {}
-              front_R_wheel_link:
-                {}
-              steer_link:
-                {}
-              ackermann_bar_link:
-                {}
+                driveRwhl_l_link:
+                  {}
+                driveRwhl_r_link:
+                  {}
+                front_L_bar_link:
+                  {}
+                front_L_wheel_link:
+                  {}
+                front_R_bar_link:
+                  {}
+                front_R_wheel_link:
+                  {}
+                steer_link:
+                  {}
+                ackermann_bar_link:
+                  {}
       Update Interval: 0
       Value: true
     - Class: rviz_default_plugins/Axes
