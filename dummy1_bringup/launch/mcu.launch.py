@@ -37,20 +37,6 @@ def generate_launch_description():
       ],
       remappings=[("odometry/filtered", "odom")]
     ),
-    # Node(
-    #   package='mpu9250driver',
-    #   executable='mpu9250driver',
-    #   name='mpu9250driver_node',
-    #   parameters=[mpu_config_path],
-    #   output='screen',
-    #   remappings=[("imu", "imu/data")]
-    # ),
-    Node(
-      package='dummy1_bringup',
-      executable='Odompub',
-      name='Odompub',
-      output='screen',
-    ),
     Node(
       package='ydlidar_ros2_driver',
       executable='ydlidar_ros2_driver_node',
