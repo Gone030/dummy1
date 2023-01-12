@@ -45,11 +45,10 @@ protected:
 public:
     Imu()
     {
-        imu_msg_.header.frame_id.data = (char*)malloc(100*sizeof(char));
-        char string1[] = "imu_base";
-        memcpy(imu_msg_.header.frame_id.data, string1, strlen(string1) + 1);
-        imu_msg_.header.frame_id.size = strlen(imu_msg_.header.frame_id.data);
-        imu_msg_.header.frame_id.capacity = 100;
+        char frame_name[] = "imu_link";
+        imu_msg_.header.frame_id.data = frame_name;
+        imu_msg_.header.frame_id.size = sizeof(frame_name);
+        imu_msg_.header.frame_id.capacity = sizeof(frame_name);
     }
     ~Imu()
     {
