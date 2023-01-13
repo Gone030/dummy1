@@ -4,13 +4,13 @@ ydlidar_ros2_driver_node:
     frame_id: laser
     ignore_array: ""
     baudrate: 128000
-    lidar_type: 1
+    lidar_type: 5
     device_type: 0
     sample_rate: 5
     abnormal_check_count: 4
     resolution_fixed: true
     reversion: false
-    inverted: true
+    inverted: false
     auto_reconnect: true
     isSingleChannel: false
     intensity: false
