@@ -6,14 +6,16 @@ Odom::Odom():
     theta_(0.0)
 {
     char string1[] = "odom";
-    odometry_msg_.header.frame_id.data = string1;
-    odometry_msg_.header.frame_id.size = sizeof(string1);
     odometry_msg_.header.frame_id.capacity = sizeof(string1);
+    odometry_msg_.header.frame_id.data = (char*)malloc(odometry_msg_.header.frame_id.capacity * sizeof(char));
+    odometry_msg_.header.frame_id.size = sizeof(string1);
+    strcpy(odometry_msg_.header.frame_id.data, "odom");
 
     char string2[] = "base_footprint";
-    odometry_msg_.child_frame_id.data = string2;
-    odometry_msg_.child_frame_id.size = sizeof(string2);
     odometry_msg_.child_frame_id.capacity = sizeof(string2);
+    odometry_msg_.child_frame_id.data = (char*)malloc(odometry_msg_.child_frame_id.capacity * sizeof(char));
+    odometry_msg_.child_frame_id.size = sizeof(string2);
+    strcpy(odometry_msg_.child_frame_id.data, "base_footprint");
 }
 
 void Odom::update(float dt, float linear_vel_x, float angular_vel_z)

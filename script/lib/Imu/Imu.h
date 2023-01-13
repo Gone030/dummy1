@@ -46,9 +46,10 @@ public:
     Imu()
     {
         char frame_name[] = "imu_link";
-        imu_msg_.header.frame_id.data = frame_name;
-        imu_msg_.header.frame_id.size = sizeof(frame_name);
         imu_msg_.header.frame_id.capacity = sizeof(frame_name);
+        imu_msg_.header.frame_id.data = (char*)malloc(imu_msg_.header.frame_id.capacity * sizeof(char));
+        imu_msg_.header.frame_id.size = sizeof(frame_name);
+        strcpy(imu_msg_.header.frame_id.data, "imu_link");
     }
     ~Imu()
     {
