@@ -10,7 +10,7 @@ ydlidar_ros2_driver_node:
     abnormal_check_count: 4
     resolution_fixed: true
     reversion: true
-    inverted: false
+    inverted: true
     auto_reconnect: true
     isSingleChannel: false
     intensity: false
