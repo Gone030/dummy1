@@ -170,6 +170,11 @@
                 <box size="0.1 0.1 0.1"/>
             </geometry>
         </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.1"/>
+            </geometry>
+        </collision>
     </link>
     <joint name="imu_joint" type="fixed">
         <parent link="base_link"/>

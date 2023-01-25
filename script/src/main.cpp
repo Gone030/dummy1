@@ -56,7 +56,7 @@ enum states
 } state;
 
 
-#define max_rpm 18000
+#define max_rpm 176
 
 float wheel_diameter = 7.3; //cm
 float wheel_distence_x = 17.3;
@@ -86,9 +86,9 @@ long prev_count_tick = 0;
 float prev_encoder_vel = 0;
 
 //PID config
-#define kp 2.7
-#define ki 0.1
-#define kd 2
+#define kp 1
+#define ki 0
+#define kd 0
 int min_val = -255;
 int max_val = 255;
 
@@ -231,7 +231,7 @@ void move()
   }
   average = total / numReadings;
   //*
-  rpm_msg.data = (float)average;
+  rpm_msg.data = (float)average; //얘가 뜀
   motor.run(average);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);

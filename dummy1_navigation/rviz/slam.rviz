@@ -172,29 +172,27 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        base_footprint:
-          {}
-        base_link:
-          driveRwhl_l_link:
-            {}
-          driveRwhl_r_link:
-            {}
-          front_L_bar_link:
-            front_L_wheel_link:
-              {}
-          front_R_bar_link:
-            front_R_wheel_link:
-              {}
-          imu_link:
-            {}
-          laser:
-            {}
-          steer_link:
-            ackermann_bar_link:
-              {}
         map:
           odom:
-            {}
+            base_footprint:
+              base_link:
+                imu_link:
+                  {}
+                laser:
+                  {}
+                driveRwhl_l_link:
+                  {}
+                driveRwhl_r_link:
+                  {}
+              steer_link:
+                front_L_bar_link:
+                  front_L_wheel_link:
+                    {}
+                front_R_bar_link:
+                  front_R_wheel_link:
+                    {}
+                ackermann_bar_link:
+                  {}
       Update Interval: 0
       Value: true
     - Alpha: 0.5

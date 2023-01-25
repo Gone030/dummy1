@@ -23,15 +23,15 @@ control::control(int motor_pin_F, int motor_pin_R, int motor_pin_F_EN, int motor
 
 void control::run(double pwm_duty)
 {
-    pwm_duty_ = (int)abs(pwm_duty) / 4;
-    if(pwm_duty > 0)
+    pwm_duty_ = (int)abs(pwm_duty);
+    if(pwm_duty < 0)
     {
         digitalWrite(motor_pin_F_EN_, HIGH);
         digitalWrite(motor_pin_R_EN_, HIGH);
         analogWrite(motor_pin_F_,pwm_duty_);
         analogWrite(motor_pin_R_,0);
     }
-    else if(pwm_duty < 0)
+    else if(pwm_duty > 0)
     {
         digitalWrite(motor_pin_F_EN_, HIGH);
         digitalWrite(motor_pin_R_EN_, HIGH);

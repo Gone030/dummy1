@@ -56,9 +56,9 @@ void Odom::update(float dt, float linear_vel_x, float angular_vel_z)
     odometry_msg_.twist.twist.angular.y = 0.0;
     odometry_msg_.twist.twist.angular.z = angular_vel_z_;
 
-    odometry_msg_.twist.covariance[0] = 0.001;
-    odometry_msg_.twist.covariance[7] = 0.001;
-    odometry_msg_.twist.covariance[35] = 0.001;
+    odometry_msg_.twist.covariance[0] = 0.0001;
+    odometry_msg_.twist.covariance[7] = 0.0001;
+    odometry_msg_.twist.covariance[35] = 0.0001;
 }
 
 const void Odom::euler_to_qurternion(float roll, float pitch, float yaw, float* q)
@@ -71,9 +71,9 @@ const void Odom::euler_to_qurternion(float roll, float pitch, float yaw, float* 
     float sinroll = sin(roll * 0.5);
 
     q[0] = cosyaw * cospitch * cosroll + sinyaw * sinpitch * sinroll;
-    q[1] = sinyaw * cospitch * cosroll - cosyaw * sinpitch * sinroll;
+    q[1] = cosyaw * cospitch * sinroll - sinyaw * sinpitch * cosroll;
     q[2] = sinyaw * cospitch * sinroll + cosyaw * sinpitch * cosroll;
-    q[3] = cosyaw * cospitch * sinroll - sinyaw * sinpitch * cosroll;
+    q[3] = sinyaw * cospitch * cosroll - cosyaw * sinpitch * sinroll;
 }
 
 nav_msgs__msg__Odometry Odom::getData()
