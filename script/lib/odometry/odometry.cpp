@@ -16,24 +16,60 @@ Odom::Odom():
     odometry_msg_.child_frame_id.data = (char*)malloc(odometry_msg_.child_frame_id.capacity * sizeof(char));
     odometry_msg_.child_frame_id.size = sizeof(string2);
     strcpy(odometry_msg_.child_frame_id.data, "base_footprint");
+
+    odom_trans_.header.frame_id.capacity = sizeof(string1);
+    odom_trans_.header.frame_id.data = (char*)malloc(odom_trans_.header.frame_id.capacity * sizeof(char));
+    odom_trans_.header.frame_id.size = sizeof(string1);
+    strcpy(odom_trans_.header.frame_id.data, "odom");
+
+    odom_trans_.child_frame_id.capacity = sizeof(string2);
+    odom_trans_.child_frame_id.data = (char*)malloc(odom_trans_.child_frame_id.capacity * sizeof(char));
+    odom_trans_.child_frame_id.size = sizeof(string2);
+    strcpy(odom_trans_.child_frame_id.data, "base_footprint");
 }
 
-void Odom::update(float dt, float linear_vel_x, float angular_vel_z)
+
+void Odom::integrateRK2(double linear, double angular)
+{
+    const double direction = theta_ + angular * 0.5;
+
+    x_pose_ += linear * cos(direction);
+    y_pose_ += linear * sin(direction);
+    theta_ += angular;
+}
+
+void Odom::integrate(double linear, double angular)
+{
+    if( angular == 0)
+    {
+        integrateRK2(linear, angular);
+    }
+    else
+    {
+        const double theta_old = theta_;
+        const double r = linear / angular;
+        theta_ += angular;
+        x_pose_ += r * (sin(theta_) - sin(theta_old));
+        y_pose_ += -r * (cos(theta_) - cos(theta_old));
+    }
+}
+
+
+void Odom::update(float dt, double linear_vel_x, double angular_vel_z)
 {
 
-    float dtheta = angular_vel_z * dt;
-
-    float conth = cos(theta_);
-    float sinth = sin(theta_);
-    float delta_x = (linear_vel_x * conth) * dt;
-    float delta_y = (linear_vel_x * sinth) * dt;
-
-    x_pose_ += delta_x;
-    y_pose_ += delta_y;
-    theta_ += dtheta;
+    integrate(linear_vel_x * dt, angular_vel_z * dt);
 
     float q[4];
     euler_to_qurternion(0, 0, theta_, q);
+
+    odom_trans_.transform.translation.x = x_pose_;
+    odom_trans_.transform.translation.y = y_pose_;
+    odom_trans_.transform.rotation.x = (double) q[1];
+    odom_trans_.transform.rotation.y = (double) q[2];
+    odom_trans_.transform.rotation.z = (double) q[3];
+    odom_trans_.transform.rotation.w = (double) q[0];
+
 
     odometry_msg_.pose.pose.position.x = x_pose_;
     odometry_msg_.pose.pose.position.y = y_pose_;
@@ -48,13 +84,13 @@ void Odom::update(float dt, float linear_vel_x, float angular_vel_z)
     odometry_msg_.pose.covariance[7] = 0.001;
     odometry_msg_.pose.covariance[35] = 0.001;
 
-    odometry_msg_.twist.twist.linear.x = linear_vel_x_;
+    odometry_msg_.twist.twist.linear.x = linear_;
     odometry_msg_.twist.twist.linear.y = 0.0;
     odometry_msg_.twist.twist.linear.z = 0.0;
 
     odometry_msg_.twist.twist.angular.x = 0.0;
     odometry_msg_.twist.twist.angular.y = 0.0;
-    odometry_msg_.twist.twist.angular.z = angular_vel_z_;
+    odometry_msg_.twist.twist.angular.z = angular_;
 
     odometry_msg_.twist.covariance[0] = 0.0001;
     odometry_msg_.twist.covariance[7] = 0.0001;
@@ -76,7 +112,3 @@ const void Odom::euler_to_qurternion(float roll, float pitch, float yaw, float* 
     q[3] = sinyaw * cospitch * cosroll - cosyaw * sinpitch * sinroll;
 }
 
-nav_msgs__msg__Odometry Odom::getData()
-{
-    return odometry_msg_;
-}

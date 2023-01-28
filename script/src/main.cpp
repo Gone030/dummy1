@@ -11,6 +11,7 @@
 #include <nav_msgs/msg/odometry.h>
 #include <std_msgs/msg/float64.h>
 #include <sensor_msgs/msg/imu.h>
+#include <tf2_msgs/msg/tf_message.h>
 
 #include "Imu.h"
 #include "Calculates.h"
@@ -19,13 +20,14 @@
 #include "odometry.h"
 
 rcl_subscription_t twist_sub;
-rcl_subscription_t p_sub;
-rcl_subscription_t i_sub;
-rcl_subscription_t d_sub;
-rcl_publisher_t enc_pub;
-rcl_publisher_t rpm_pub;
+// rcl_subscription_t p_sub;
+// rcl_subscription_t i_sub;
+// rcl_subscription_t d_sub;
+// rcl_publisher_t enc_pub;
+// rcl_publisher_t rpm_pub;
 rcl_publisher_t odom_pub;
 rcl_publisher_t imu_pub;
+rcl_publisher_t tf_pub;
 
 rclc_executor_t executor;
 rclc_support_t support;
@@ -38,13 +40,14 @@ unsigned long prev_cmdvel_time = 0;
 unsigned long prev_odom_update = 0;
 
 geometry_msgs__msg__Twist twist_msg;
-std_msgs__msg__Float64 goal_vel;
-std_msgs__msg__Float64 rpm_msg;
+// std_msgs__msg__Float64 goal_vel;
+// std_msgs__msg__Float64 rpm_msg;
 nav_msgs__msg__Odometry odom_msg;
-std_msgs__msg__Float64 p_msg;
-std_msgs__msg__Float64 i_msg;
-std_msgs__msg__Float64 d_msg;
+// std_msgs__msg__Float64 p_msg;
+// std_msgs__msg__Float64 i_msg;
+// std_msgs__msg__Float64 d_msg;
 sensor_msgs__msg__Imu imu_msg;
+geometry_msgs__msg__TransformStamped odom_tf_msg;
 
 
 enum states
@@ -187,24 +190,24 @@ void subcmdvel_callback(const void *msgin)
   prev_cmdvel_time = millis();
 }
 
-void subpvel_callback(const void *msgin)
-{
-  const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
-  p_msg.data = msg->data ;
-  pid.updatepvel(p_msg.data);
-}
-void subivel_callback(const void *msgin)
-{
-  const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
-  i_msg.data = msg->data;
-  pid.updateivel(i_msg.data);
-}
-void subdvel_callback(const void *msgin)
-{
-  const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
-  i_msg.data = msg->data;
-  pid.updatedvel(d_msg.data);
-}
+// void subpvel_callback(const void *msgin)
+// {
+//   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
+//   p_msg.data = msg->data ;
+//   pid.updatepvel(p_msg.data);
+// }
+// void subivel_callback(const void *msgin)
+// {
+//   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
+//   i_msg.data = msg->data;
+//   pid.updateivel(i_msg.data);
+// }
+// void subdvel_callback(const void *msgin)
+// {
+//   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
+//   i_msg.data = msg->data;
+//   pid.updatedvel(d_msg.data);
+// }
 
 
 void move()
@@ -216,7 +219,7 @@ void move()
   }
   float calc_dc_rpm = calculates.CalculateRpm(twist_msg.linear.x);
   float ecd_rpm = getRPM();
-  goal_vel.data = (float)calc_dc_rpm;
+  // goal_vel.data = (float)calc_dc_rpm;
   double pidvel = pid.pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z;
 
@@ -231,7 +234,7 @@ void move()
   }
   average = total / numReadings;
   //*
-  rpm_msg.data = (float)average; //얘가 뜀
+  // rpm_msg.data = (float)average;
   motor.run(average);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);
@@ -240,22 +243,27 @@ void move()
   unsigned long now = millis();
   float dt = (now  - prev_odom_update) / 1000.0;
   prev_odom_update = now;
-  odom.update(dt, current_vel.linear_x, current_vel.anguler_z);
+  odom.update(dt, current_vel.linear_x, current_vel.angular_z);
 }
 
 void publishData()
 {
-  RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
-  RCSOFTCHECK(rcl_publish(&rpm_pub, &rpm_msg, NULL));
+  // RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
+  // RCSOFTCHECK(rcl_publish(&rpm_pub, &rpm_msg, NULL));
   imu_msg = imu.getdata();
-  odom_msg = odom.getData();
+  odom_msg = odom.getOdomData();
+  odom_tf_msg = odom.getOdomtfData();
+
   struct timespec time_stamp = getTime();
 
   odom_msg.header.stamp.sec = time_stamp.tv_sec;
   odom_msg.header.stamp.nanosec = time_stamp.tv_nsec;
   imu_msg.header.stamp.sec = time_stamp.tv_sec;
   imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
+  odom_tf_msg.header.stamp.sec = time_stamp.tv_sec;
+  odom_tf_msg.header.stamp.nanosec = time_stamp.tv_nsec;
 
+  RCSOFTCHECK(rcl_publish(&tf_pub, &odom_tf_msg, NULL));
   RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
   RCSOFTCHECK(rcl_publish(&odom_pub, &odom_msg, NULL));
 }
@@ -286,42 +294,48 @@ bool createEntities()
     "cmd_vel"
   ));
 
-  RCCHECK(rclc_subscription_init_default(
-    &p_sub,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-    "p_vel"
-  ));
-  RCCHECK(rclc_subscription_init_default(
-    &i_sub,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-    "i_vel"
-  ));
-  RCCHECK(rclc_subscription_init_default(
-    &d_sub,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-    "d_vel"
-  ));
+  // RCCHECK(rclc_subscription_init_default(
+  //   &p_sub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+  //   "p_vel"
+  // ));
+  // RCCHECK(rclc_subscription_init_default(
+  //   &i_sub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+  //   "i_vel"
+  // ));
+  // RCCHECK(rclc_subscription_init_default(
+  //   &d_sub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+  //   "d_vel"
+  // ));
   RCCHECK(rclc_publisher_init_default(
     &odom_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
     "odom/unfiltered"
   ));
-  RCCHECK(rclc_publisher_init_best_effort(
-    &enc_pub,
+  RCCHECK(rclc_publisher_init_default(
+    &tf_pub,
     &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-    "goal_vel"
+    ROSIDL_GET_MSG_TYPE_SUPPORT(tf2_msgs, msg, TFMessage),
+    "tf"
   ));
-  RCCHECK(rclc_publisher_init_best_effort(
-    &rpm_pub,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-    "rpm_vel"
-  ));
+  // RCCHECK(rclc_publisher_init_best_effort(
+  //   &enc_pub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+  //   "goal_vel"
+  // ));
+  // RCCHECK(rclc_publisher_init_best_effort(
+  //   &rpm_pub,
+  //   &node,
+  //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+  //   "rpm_vel"
+  // ));
   RCCHECK(rclc_publisher_init_best_effort(
     &imu_pub,
     &node,
@@ -337,7 +351,7 @@ bool createEntities()
     controlcallback
   ));
   executor = rclc_executor_get_zero_initialized_executor();
-  RCCHECK(rclc_executor_init(&executor, &support.context, 5, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
 
   RCCHECK(rclc_executor_add_subscription(
     &executor,
@@ -347,27 +361,27 @@ bool createEntities()
     ON_NEW_DATA
   ));
 
-  RCCHECK(rclc_executor_add_subscription(
-    &executor,
-    &p_sub,
-    &p_msg,
-    &subpvel_callback,
-    ON_NEW_DATA
-  ));
-  RCCHECK(rclc_executor_add_subscription(
-    &executor,
-    &i_sub,
-    &i_msg,
-    &subivel_callback,
-    ON_NEW_DATA
-  ));
-  RCCHECK(rclc_executor_add_subscription(
-    &executor,
-    &d_sub,
-    &d_msg,
-    &subdvel_callback,
-    ON_NEW_DATA
-  ));
+  // RCCHECK(rclc_executor_add_subscription(
+  //   &executor,
+  //   &p_sub,
+  //   &p_msg,
+  //   &subpvel_callback,
+  //   ON_NEW_DATA
+  // ));
+  // RCCHECK(rclc_executor_add_subscription(
+  //   &executor,
+  //   &i_sub,
+  //   &i_msg,
+  //   &subivel_callback,
+  //   ON_NEW_DATA
+  // ));
+  // RCCHECK(rclc_executor_add_subscription(
+  //   &executor,
+  //   &d_sub,
+  //   &d_msg,
+  //   &subdvel_callback,
+  //   ON_NEW_DATA
+  // ));
 
   RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
 
@@ -381,13 +395,14 @@ bool destroyEntities()
   (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   rcl_publisher_fini(&imu_pub, &node);
-  rcl_publisher_fini(&enc_pub, &node);
-  rcl_publisher_fini(&rpm_pub, &node);
+  // rcl_publisher_fini(&enc_pub, &node);
+  // rcl_publisher_fini(&rpm_pub, &node);
   rcl_publisher_fini(&odom_pub, &node);
   rcl_subscription_fini(&twist_sub, &node);
-  rcl_subscription_fini(&p_sub, &node);
-  rcl_subscription_fini(&i_sub, &node);
-  rcl_subscription_fini(&d_sub, &node);
+  // rcl_subscription_fini(&p_sub, &node);
+  // rcl_subscription_fini(&i_sub, &node);
+  // rcl_subscription_fini(&d_sub, &node);
+  rcl_publisher_fini(&tf_pub, &node);
   rclc_executor_fini(&executor);
   rclc_support_fini(&support);
   rcl_timer_fini(&control_timer);

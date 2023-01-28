@@ -13,11 +13,10 @@ class Calculates
 
         struct vel
         {
-            float linear_x;
-            float anguler_z;
+            double linear_x;
+            double angular_z;
         };
         Calculates(int max_rpm, float wheel_diameter, float wheel_distance_x);
         vel get_velocities(float steer_angle, float rpm);
         float CalculateRpm(float linear_x);
-        
 };
