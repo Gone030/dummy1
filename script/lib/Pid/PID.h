@@ -15,7 +15,7 @@ class PID
 
     public:
         PID(int min_value, int max_value, double kp, double ki, double kd);
-        double pidcompute(float setpoint, float mesured_value);
+        double pidcompute(double setpoint, float mesured_value);
         void updatepvel(double kp);
         void updateivel(double ki);
         void updatedvel(double kd);

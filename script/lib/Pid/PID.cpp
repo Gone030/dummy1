@@ -10,13 +10,13 @@ PID::PID(int min_value, int max_value, double kp, double ki, double kd):
 {
 }
 
-double PID::pidcompute(float setpoint, float measured_value)
+double PID::pidcompute(double setpoint, float measured_value)
 {
     double error;
     double pid;
 
     // unsigned long dt = prev_time_ - current_time_;
-    error = setpoint - measured_value;
+    error = setpoint - (double)measured_value;
     integral_ += error; // (double)dt;
     derivative_ = (error - prev_error_) ; //(double)dt;
 

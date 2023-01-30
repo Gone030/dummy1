@@ -17,15 +17,6 @@ Odom::Odom():
     odometry_msg_.child_frame_id.size = sizeof(string2);
     strcpy(odometry_msg_.child_frame_id.data, "base_footprint");
 
-    odom_trans_.header.frame_id.capacity = sizeof(string1);
-    odom_trans_.header.frame_id.data = (char*)malloc(odom_trans_.header.frame_id.capacity * sizeof(char));
-    odom_trans_.header.frame_id.size = sizeof(string1);
-    strcpy(odom_trans_.header.frame_id.data, "odom");
-
-    odom_trans_.child_frame_id.capacity = sizeof(string2);
-    odom_trans_.child_frame_id.data = (char*)malloc(odom_trans_.child_frame_id.capacity * sizeof(char));
-    odom_trans_.child_frame_id.size = sizeof(string2);
-    strcpy(odom_trans_.child_frame_id.data, "base_footprint");
 }
 
 
@@ -40,9 +31,15 @@ void Odom::integrateRK2(double linear, double angular)
 
 void Odom::integrate(double linear, double angular)
 {
-    if( angular == 0)
+    if( angular == 0 || fabs(angular) < 1e-3 )
     {
         integrateRK2(linear, angular);
+    }
+    else if(linear == 0)
+    {
+        x_pose_ += 0;
+        y_pose_ += 0;
+        theta_ += 0;
     }
     else
     {
@@ -57,18 +54,13 @@ void Odom::integrate(double linear, double angular)
 
 void Odom::update(float dt, double linear_vel_x, double angular_vel_z)
 {
+    linear_ = linear_vel_x;
+    angular_ = angular_vel_z;
 
-    integrate(linear_vel_x * dt, angular_vel_z * dt);
+    integrate(linear_ * dt, angular_ * dt);
 
     float q[4];
     euler_to_qurternion(0, 0, theta_, q);
-
-    odom_trans_.transform.translation.x = x_pose_;
-    odom_trans_.transform.translation.y = y_pose_;
-    odom_trans_.transform.rotation.x = (double) q[1];
-    odom_trans_.transform.rotation.y = (double) q[2];
-    odom_trans_.transform.rotation.z = (double) q[3];
-    odom_trans_.transform.rotation.w = (double) q[0];
 
 
     odometry_msg_.pose.pose.position.x = x_pose_;
