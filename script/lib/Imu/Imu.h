@@ -75,9 +75,9 @@ public:
 
         gyroscope_.getRotation(&gx, &gy, &gz);
 
-        gyro_.x = gx * (double) gyro_scale_ * DEG_TO_RAD;
-        gyro_.y = gy * (double) gyro_scale_ * DEG_TO_RAD;
-        gyro_.z = gz * (double) gyro_scale_ * DEG_TO_RAD;
+        gyro_.x = (double)gx * (double) gyro_scale_ * DEG_TO_RAD;
+        gyro_.y = (double)gy * (double) gyro_scale_ * DEG_TO_RAD;
+        gyro_.z = (double)gz * (double) gyro_scale_ * DEG_TO_RAD;
 
         return gyro_;
     }
@@ -87,9 +87,9 @@ public:
 
         accelerometer_.getAcceleration(&ax, &ay, &az);
 
-        accel_.x = ax * (double) accel_scale_ * g_to_accel_;
-        accel_.y = ay * (double) accel_scale_ * g_to_accel_;
-        accel_.z = az * (double) accel_scale_ * g_to_accel_;
+        accel_.x = (double)ax * (double) (accel_scale_ * g_to_accel_);
+        accel_.y = (double)ay * (double) (accel_scale_ * g_to_accel_);
+        accel_.z = (double)az * (double) (accel_scale_ * g_to_accel_);
 
         return accel_;
     }

@@ -59,18 +59,20 @@ enum states
 } state;
 
 
+
 #define max_rpm 176
 
-double wheel_diameter = 7.3; //cm
-double wheel_distence_x = 17.3;
+double  wheel_diameter = 7.3; //cm
+double  wheel_distence_x = 17.3; //cm
+double  gear_ratio = 0.35;
 
 
 //motor config
 #define motor_pin_R 2
 #define motor_pin_L 3
+#define servo_pin 4
 #define motor_pin_R_EN 5
 #define motor_pin_L_EN 6
-#define servo_pin 4
 
 //encoder config
 #define pA 10
@@ -81,8 +83,6 @@ double wheel_distence_x = 17.3;
 
 volatile signed long cnt_ = 0;
 volatile signed char dir_ = 1;
-int vel_ = 0;
-int temp_ = 0;
 
 unsigned long prev_count_time = 0;
 long prev_count_tick = 0;
@@ -105,7 +105,7 @@ double average = 0;
 
 PID pid(min_val, max_val, kp, ki, kd);
 control motor(motor_pin_R, motor_pin_L, motor_pin_R_EN, motor_pin_L_EN, servo_pin);
-Calculates calculates(max_rpm, wheel_diameter, wheel_distence_x);
+Calculates calculates(max_rpm, gear_ratio, wheel_diameter, wheel_distence_x);
 Imu imu;
 Odom odom;
 
@@ -153,14 +153,8 @@ void encoderCount()
   dir_ = (digitalRead(pB) == HIGH)? -1: 1;
   cnt_ += dir_;
 }
-void encoderReset()
-{
-  cnt_ = 0;
-}
-long returnCount()
-{
-  return cnt_;
-}
+void encoderReset(){ cnt_ = 0; }
+long returnCount(){ return cnt_; }
 float getRPM()
 {
   long current_tick = returnCount();
@@ -190,6 +184,17 @@ void subcmdvel_callback(const void *msgin)
   prev_cmdvel_time = millis();
 }
 
+double MA_filter(double vel)
+{
+  total = total - readings[readindex];
+  readings[readindex] = vel;
+  total = total + readings[readindex];
+  readindex++;
+  if (readindex >= numReadings) { readindex = 0; }
+  average = total / numReadings;
+  return average;
+}
+
 // void subpvel_callback(const void *msgin)
 // {
 //   const std_msgs__msg__Float64 * msg = (const std_msgs__msg__Float64 *)msgin;
@@ -209,7 +214,6 @@ void subcmdvel_callback(const void *msgin)
 //   pid.updatedvel(d_msg.data);
 // }
 
-
 void move()
 {
   if((millis() - prev_cmdvel_time) >= 200)
@@ -222,26 +226,13 @@ void move()
   // goal_vel.data = (float)calc_dc_rpm;
   double pidvel = pid.pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z;
-
-  //*이동평균
-  total = total - readings[readindex];
-  readings[readindex] = pidvel;
-  total = total + readings[readindex];
-  readindex++;
-  if (readindex >= numReadings)
-  {
-    readindex = 0;
-  }
-  average = total / numReadings;
-  //*
   // rpm_msg.data = (float)average;
-  motor.run(average);
+  motor.run(MA_filter(pidvel));
   float current_steering_angle = motor.steer(req_anguler_vel_z);
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);
 
-  temp_msg.linear.x = current_vel.linear_x;
-  temp_msg.angular.z = current_vel.angular_z;
-
+  temp_msg.linear.x = current_vel.linear_x; // test publish
+  temp_msg.angular.z = current_vel.angular_z; // test publish
 
   unsigned long now = millis();
   float dt = (now  - prev_odom_update) / 1000.0;
@@ -293,7 +284,6 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "cmd_vel"
   ));
-
   // RCCHECK(rclc_subscription_init_default(
   //   &p_sub,
   //   &node,
@@ -350,6 +340,7 @@ bool createEntities()
     RCL_MS_TO_NS(timeout),
     controlcallback
   ));
+
   executor = rclc_executor_get_zero_initialized_executor();
   RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
 
@@ -416,9 +407,11 @@ void setup()
   pinMode(13, OUTPUT);
   imu.init();
 
+/*
   attachInterrupt(pA, encoderCount, FALLING);
   pinMode(pB, INPUT);
   attachInterrupt(pZ, encoderReset, FALLING);
+*/
 
   set_microros_transports();
 }
