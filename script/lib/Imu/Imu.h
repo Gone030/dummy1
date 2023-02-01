@@ -20,10 +20,10 @@ protected:
     sensor_msgs__msg__Imu imu_msg_;
     geometry_msgs__msg__Vector3 gyro_cal_;
     const int sample_size_ = 40;
-    const float g_to_accel_ = 9.81;
+    const float g_to_accel_ = 9.81f;
 
-    float accel_cov_ = 0.00001;
-    float gyro_cov_ = 0.00001;
+    float accel_cov_ = 0.00001f;
+    float gyro_cov_ = 0.00001f;
 
     void calibrateGyro()
     {
@@ -37,9 +37,9 @@ protected:
 
             delay(50);
         }
-        gyro_cal_.x = gyro_cal_.x / (float)sample_size_;
-        gyro_cal_.y = gyro_cal_.y / (float)sample_size_;
-        gyro_cal_.z = gyro_cal_.z / (float)sample_size_;
+        gyro_cal_.x = gyro_cal_.x / (double)sample_size_;
+        gyro_cal_.y = gyro_cal_.y / (double)sample_size_;
+        gyro_cal_.z = gyro_cal_.z / (double)sample_size_;
     }
 
 public:

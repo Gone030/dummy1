@@ -18,12 +18,12 @@ double Calculates::CalculateRpm(double linear_x)
     return dcmotor_rpm;
 }
 
-Calculates::vel Calculates::get_velocities(float steer_angle, float rpm)
+Calculates::vel Calculates::get_velocities(float steer_angle, double rpm)
 {
     Calculates::vel velo;
     double average_rps;
     average_rps = (double)rpm / 60.0;
-    velo.linear_x = average_rps * wheel_round_ * gear_ratio_; // Gear ratio (temp)
+    velo.linear_x = average_rps * wheel_round_ / gear_ratio_; // Gear ratio (temp)
     velo.angular_z = (velo.linear_x * tan(steer_angle)) / wheel_distance_x_;
     if(fabs(velo.angular_z) < 1e-3) {velo.angular_z = 0;}
 

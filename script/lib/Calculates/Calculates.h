@@ -17,6 +17,6 @@ class Calculates
             double angular_z;
         };
         Calculates(int max_rpm, double gear_ratio, double wheel_diameter, double wheel_distance_x);
-        vel get_velocities(float steer_angle, float rpm);
+        vel get_velocities(float steer_angle, double rpm);
         double CalculateRpm(double linear_x);
 };

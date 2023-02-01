@@ -20,11 +20,13 @@
 #include "odometry.h"
 
 rcl_subscription_t twist_sub;
+
 // rcl_subscription_t p_sub;
 // rcl_subscription_t i_sub;
 // rcl_subscription_t d_sub;
-// rcl_publisher_t enc_pub;
+rcl_publisher_t enc_pub;
 // rcl_publisher_t rpm_pub;
+
 rcl_publisher_t odom_pub;
 rcl_publisher_t imu_pub;
 rcl_publisher_t temp_pub;
@@ -40,12 +42,14 @@ unsigned long prev_cmdvel_time = 0;
 unsigned long prev_odom_update = 0;
 
 geometry_msgs__msg__Twist twist_msg;
-// std_msgs__msg__Float64 goal_vel;
-// std_msgs__msg__Float64 rpm_msg;
 nav_msgs__msg__Odometry odom_msg;
+
+std_msgs__msg__Float64 goal_vel;
+// std_msgs__msg__Float64 rpm_msg;
 // std_msgs__msg__Float64 p_msg;
 // std_msgs__msg__Float64 i_msg;
 // std_msgs__msg__Float64 d_msg;
+
 sensor_msgs__msg__Imu imu_msg;
 geometry_msgs__msg__Twist temp_msg;
 
@@ -60,13 +64,11 @@ enum states
 
 
 
-#define max_rpm 176
-
 double  wheel_diameter = 7.3; //cm
 double  wheel_distence_x = 17.3; //cm
 double  gear_ratio = 0.35;
 
-
+#define max_rpm 176
 //motor config
 #define motor_pin_R 2
 #define motor_pin_L 3
@@ -81,12 +83,12 @@ double  gear_ratio = 0.35;
 
 #define Count_per_Revolution 12000
 
-volatile signed long cnt_ = 0;
+volatile signed long cnt_ = 0l;
 volatile signed char dir_ = 1;
 
-unsigned long prev_count_time = 0;
-long prev_count_tick = 0;
-float prev_encoder_vel = 0;
+unsigned long prev_count_time = 0.0l;
+long prev_count_tick = 0.0l;
+double prev_encoder_vel = 0.0;
 
 //PID config
 #define kp 1
@@ -98,9 +100,9 @@ int max_val = 255;
 //이동평균필터
 const int numReadings = 5;
 double readings[numReadings];
-int readindex = 0;
-double total = 0;
-double average = 0;
+int readindex = 0.0;
+double total = 0.0;
+// double average = 0.0;
 
 
 PID pid(min_val, max_val, kp, ki, kd);
@@ -155,19 +157,19 @@ void encoderCount()
 }
 void encoderReset(){ cnt_ = 0; }
 long returnCount(){ return cnt_; }
-float getRPM()
+double getRPM()
 {
   long current_tick = returnCount();
   unsigned long current_time = micros();
   unsigned long dt = current_time - prev_count_time;
   double delta_tick = (double)(current_tick - prev_count_tick);
 
-  double dtm = (double)dt / 1000000;
+  double dtm = (double)dt / 1000000.0;
 
   prev_count_tick = current_tick;
   prev_count_time = current_time;
-  float current_encoder_vel = (60 * delta_tick / Count_per_Revolution) / dtm;
-  if(abs(prev_encoder_vel - current_encoder_vel) > 200)
+  double current_encoder_vel = (60.0 * delta_tick / Count_per_Revolution) / dtm;
+  if(abs(prev_encoder_vel - current_encoder_vel) > 200.0)
   {
     return prev_encoder_vel;
   }
@@ -191,7 +193,7 @@ double MA_filter(double vel)
   total = total + readings[readindex];
   readindex++;
   if (readindex >= numReadings) { readindex = 0; }
-  average = total / numReadings;
+  double average = total / numReadings;
   return average;
 }
 
@@ -222,11 +224,12 @@ void move()
     twist_msg.angular.z = 0.0;
   }
   double calc_dc_rpm = calculates.CalculateRpm(twist_msg.linear.x);
-  float ecd_rpm = getRPM();
-  // goal_vel.data = (float)calc_dc_rpm;
+  double ecd_rpm = getRPM();
+  // goal_vel.data = calc_dc_rpm;
+  goal_vel.data = ecd_rpm;
   double pidvel = pid.pidcompute(calc_dc_rpm, ecd_rpm);
   float req_anguler_vel_z = twist_msg.angular.z;
-  // rpm_msg.data = (float)average;
+  // rpm_msg.data = MA_filter(pidvel);
   motor.run(MA_filter(pidvel));
   float current_steering_angle = motor.steer(req_anguler_vel_z);
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);
@@ -242,7 +245,7 @@ void move()
 
 void publishData()
 {
-  // RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
+  RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
   // RCSOFTCHECK(rcl_publish(&rpm_pub, &rpm_msg, NULL));
   imu_msg = imu.getdata();
   odom_msg = odom.getOdomData();
@@ -314,12 +317,12 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "temp_vel"
   ));
-  // RCCHECK(rclc_publisher_init_best_effort(
-  //   &enc_pub,
-  //   &node,
-  //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-  //   "goal_vel"
-  // ));
+  RCCHECK(rclc_publisher_init_best_effort(
+    &enc_pub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "goal_vel"
+  ));
   // RCCHECK(rclc_publisher_init_best_effort(
   //   &rpm_pub,
   //   &node,
@@ -386,7 +389,7 @@ bool destroyEntities()
   (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   rcl_publisher_fini(&imu_pub, &node);
-  // rcl_publisher_fini(&enc_pub, &node);
+  rcl_publisher_fini(&enc_pub, &node);
   // rcl_publisher_fini(&rpm_pub, &node);
   rcl_publisher_fini(&odom_pub, &node);
   rcl_subscription_fini(&twist_sub, &node);
@@ -405,13 +408,29 @@ void setup()
   Serial.begin(115200);
   state = Waiting_agent;
   pinMode(13, OUTPUT);
-  imu.init();
 
-/*
+  bool imu_setup = imu.init();
+  if(!imu_setup)
+  {
+    while (1)
+    {
+      for(int i=0; i<3; i++)
+      {
+        digitalWrite(13, HIGH);
+        delay(100);
+        digitalWrite(13, LOW);
+        delay(100);
+      }
+    delay(1000);
+    }
+
+  }
+
+
   attachInterrupt(pA, encoderCount, FALLING);
   pinMode(pB, INPUT);
   attachInterrupt(pZ, encoderReset, FALLING);
-*/
+
 
   set_microros_transports();
 }
