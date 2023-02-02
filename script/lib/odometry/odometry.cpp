@@ -11,11 +11,11 @@ Odom::Odom():
     odometry_msg_.header.frame_id.size = sizeof(string1);
     strcpy(odometry_msg_.header.frame_id.data, "odom");
 
-    char string2[] = "base_link";
+    char string2[] = "base_footprint";
     odometry_msg_.child_frame_id.capacity = sizeof(string2);
     odometry_msg_.child_frame_id.data = (char*)malloc(odometry_msg_.child_frame_id.capacity * sizeof(char));
     odometry_msg_.child_frame_id.size = sizeof(string2);
-    strcpy(odometry_msg_.child_frame_id.data, "base_link");
+    strcpy(odometry_msg_.child_frame_id.data, "base_footprint");
 
 }
 
