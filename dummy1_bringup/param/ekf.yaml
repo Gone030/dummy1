@@ -6,7 +6,7 @@ ekf_filter_node:
 
         map_frame: map
         odom_frame: odom
-        base_link_frame: base_footprint
+        base_link_frame: base_link
         world_frame: odom
         transform_time_offset : 0.1
         transform_timeout: 0.1
@@ -30,5 +30,5 @@ ekf_filter_node:
                       false, false, false]
         odom0_differential: true
         odom0_relative: false
-        imu0_differential: true
+        imu0_differential: false
         imu0_relative: true
