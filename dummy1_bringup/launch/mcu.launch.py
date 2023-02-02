@@ -44,15 +44,15 @@ def generate_launch_description():
       output='screen',
       arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
     ),
-    # Node(
-    #   package='ydlidar_ros2_driver',
-    #   executable='ydlidar_ros2_driver_node',
-    #   name='ydlidar_ros2_driver_node',s
-    #   parameters=[lidar_parameter],
-    #   emulate_tty=True,
-    #   output='screen',
-    #   remappings=[("base/scan", "/scan")]
-    # ), for odom test
+    Node(
+      package='ydlidar_ros2_driver',
+      executable='ydlidar_ros2_driver_node',
+      name='ydlidar_ros2_driver_node',
+      parameters=[lidar_parameter],
+      emulate_tty=True,
+      output='screen',
+      remappings=[("base/scan", "/scan")]
+    ),
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource(description_launch_path)
     )
