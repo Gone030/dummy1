@@ -42,12 +42,12 @@ def generate_launch_description():
       executable='micro_ros_agent',
       name='micro_ros_agent',
       output='screen',
-      argument=['serial', '--dev', LaunchConfiguration("serial_port")]
+      arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
     ),
     # Node(
     #   package='ydlidar_ros2_driver',
     #   executable='ydlidar_ros2_driver_node',
-    #   name='ydlidar_ros2_driver_node',
+    #   name='ydlidar_ros2_driver_node',s
     #   parameters=[lidar_parameter],
     #   emulate_tty=True,
     #   output='screen',
