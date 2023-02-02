@@ -22,11 +22,11 @@ def generate_launch_description():
   #   [FindPackageShare('dummy1_bringup'), 'param', 'mpu9250.yaml']
   # )
   return LaunchDescription([
-    # DeclareLaunchArgument(
-    #   name='serial_port',
-    #   default_value='/dev/ttyACM0',
-    #   description='Serial port'
-    # ),
+    DeclareLaunchArgument(
+      name='serial_port',
+      default_value='/dev/ttyACM0',
+      description='Serial port'
+    ),
     Node(
       package='robot_localization',
       executable='ekf_node',
@@ -38,14 +38,21 @@ def generate_launch_description():
       remappings=[("odometry/filtered", "odom")]
     ),
     Node(
-      package='ydlidar_ros2_driver',
-      executable='ydlidar_ros2_driver_node',
-      name='ydlidar_ros2_driver_node',
-      parameters=[lidar_parameter],
-      emulate_tty=True,
+      package='micro_ros_agent',
+      executable='micro_ros_agent',
+      name='micro_ros_agent',
       output='screen',
-      remappings=[("base/scan", "/scan")]
+      argument=['serial', '--dev', LaunchConfiguration("serial_port")]
     ),
+    # Node(
+    #   package='ydlidar_ros2_driver',
+    #   executable='ydlidar_ros2_driver_node',
+    #   name='ydlidar_ros2_driver_node',
+    #   parameters=[lidar_parameter],
+    #   emulate_tty=True,
+    #   output='screen',
+    #   remappings=[("base/scan", "/scan")]
+    # ), for odom test
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource(description_launch_path)
     )
