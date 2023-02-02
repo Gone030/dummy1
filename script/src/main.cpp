@@ -317,13 +317,13 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
     "temp_vel"
   ));
-  RCCHECK(rclc_publisher_init_best_effort(
+  RCCHECK(rclc_publisher_init_default(
     &enc_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
     "goal_vel"
   ));
-  // RCCHECK(rclc_publisher_init_best_effort(
+  // RCCHECK(rclc_publisher_init_default(
   //   &rpm_pub,
   //   &node,
   //   ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
@@ -336,7 +336,7 @@ bool createEntities()
     "imu/data"
   ));
 
-  const unsigned int timeout = 40;
+  const unsigned int timeout = 20;
   RCCHECK(rclc_timer_init_default(
     &control_timer,
     &support,
