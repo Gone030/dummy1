@@ -47,6 +47,12 @@ def generate_launch_description():
       arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
     ),
     Node(
+      package='dummy1_bringup',
+      executable='Odomtf',
+      name='Odomtf',
+      output='screen'
+    ),
+    Node(
       package='ydlidar_ros2_driver',
       executable='ydlidar_ros2_driver_node',
       name='ydlidar_ros2_driver_node',

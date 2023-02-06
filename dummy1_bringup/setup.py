@@ -33,7 +33,7 @@ setup(
     entry_points={
         'console_scripts': [
             # 'lidar_way_node = dummy1_bringup.src.lidar_way_node:main',
-            # 'Odompub = dummy1_bringup.src.Odompub:main'
+            'Odomtf = dummy1_bringup.src.odomtf:main'
         ],
     },
 )
