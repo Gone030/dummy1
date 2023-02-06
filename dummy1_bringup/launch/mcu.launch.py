@@ -18,9 +18,6 @@ def generate_launch_description():
   ekf_config_path = PathJoinSubstitution(
     [FindPackageShare('dummy1_bringup'), 'param', 'ekf.yaml']
   )
-  # mpu_config_path = PathJoinSubstitution(
-  #   [FindPackageShare('dummy1_bringup'), 'param', 'mpu9250.yaml']
-  # )
   return LaunchDescription([
     DeclareLaunchArgument(
       name='serial_port',
