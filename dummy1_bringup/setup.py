@@ -32,8 +32,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # 'lidar_way_node = dummy1_bringup.src.lidar_way_node:main',
             'Odomtf = dummy1_bringup.src.odomtf:main'
+            'jointstatepub = dummy1_bringup.src.jointstatepub:main'
         ],
     },
 )

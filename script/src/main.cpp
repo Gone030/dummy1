@@ -260,7 +260,7 @@ void publishData()
   imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
 
   RCSOFTCHECK(rcl_publish(&temp_pub, &temp_msg, NULL));
-  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
+  // RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
   RCSOFTCHECK(rcl_publish(&odom_pub, &odom_msg, NULL));
 }
 
