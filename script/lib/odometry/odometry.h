@@ -20,5 +20,7 @@ class Odom
         void integrateRK2(double linear, double angular);
         void update(float dt, double linear_vel_x, double angular_vel_z);
         nav_msgs__msg__Odometry getOdomData() { return odometry_msg_; };
+        double returnpose_X(){return x_pose_;};
+        double returnpose_y(){return y_pose_;};
 
 };
