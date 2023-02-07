@@ -32,7 +32,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'Odomtf = dummy1_bringup.src.odomtf:main'
+            'Odomtf = dummy1_bringup.src.odomtf:main',
             'jointstatepub = dummy1_bringup.src.jointstatepub:main'
         ],
     },
