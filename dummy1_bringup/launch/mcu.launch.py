@@ -24,21 +24,21 @@ def generate_launch_description():
       default_value='/dev/ttyACM0',
       description='Serial port'
     ),
-    # Node(
-    #   package='robot_localization',
-    #   executable='ekf_node',
-    #   name='ekf_filter_node',
-    #   output='screen',
-    #   parameters=[
-    #     ekf_config_path
-    #   ],
-    #   remappings=[("odometry/filtered", "odom")]
-    # ),
     Node(
-      package='map_odom_broadcaster',
-      executable='map_odom_broadcaster',
-      name='map_odom_broadcaster',
-      output='screen'),
+      package='robot_localization',
+      executable='ekf_node',
+      name='ekf_filter_node',
+      output='screen',
+      parameters=[
+        ekf_config_path
+      ],
+      remappings=[("odometry/filtered", "odom")]
+    ),
+    # Node(
+    #   package='map_odom_broadcaster',
+    #   executable='map_odom_broadcaster',
+    #   name='map_odom_broadcaster',
+    #   output='screen'),
     Node(
       package='micro_ros_agent',
       executable='micro_ros_agent',
@@ -52,12 +52,12 @@ def generate_launch_description():
       name='jointstattepub',
       output='screen'
     ),
-    Node(
-      package='dummy1_bringup',
-      executable='Odomtf',
-      name='Odomtf',
-      output='screen'
-    ),
+    # Node(
+    #   package='dummy1_bringup',
+    #   executable='Odomtf',
+    #   name='Odomtf',
+    #   output='screen'
+    # ),
     Node(
       package='ydlidar_ros2_driver',
       executable='ydlidar_ros2_driver_node',
