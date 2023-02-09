@@ -59,7 +59,7 @@ float control::steer(float steering_angle)
 {
     float servo_angle ;
     steering_angle = constrain(steering_angle, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);
-    servo_angle = mapFloat(steering_angle, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE, MIN_SERVO_ANGLE, MAX_SERVO_ANGLE) * (180/PI);
+    servo_angle = mapFloat(steering_angle, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE, MAX_SERVO_ANGLE, MIN_SERVO_ANGLE) * (180/PI);
     steering_servo.write((int)servo_angle);
 
     return steering_angle;
