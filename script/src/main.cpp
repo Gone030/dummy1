@@ -95,9 +95,9 @@ long prev_count_tick = 0.0l;
 double prev_encoder_vel = 0.0;
 
 //PID config
-#define kp 1
+#define kp 1.1
 #define ki 0
-#define kd 0
+#define kd 1
 int min_val = -255;
 int max_val = 255;
 
@@ -112,7 +112,7 @@ double total = 0.0;
 PID pid(min_val, max_val, kp, ki, kd);
 control motor(motor_pin_R, motor_pin_L, motor_pin_R_EN, motor_pin_L_EN, servo_pin);
 Calculates calculates(max_rpm, gear_ratio, encoder_gear_ratio, wheel_diameter, wheel_distence_x);
-// Imu imu;
+Imu imu;
 Odom odom;
 
 void error_loop(){
@@ -252,7 +252,7 @@ void publishData()
 {
   // RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
   // RCSOFTCHECK(rcl_publish(&rpm_pub, &rpm_msg, NULL));
-  // imu_msg = imu.getdata();
+  imu_msg = imu.getdata();
   odom_msg = odom.getOdomData();
 
   struct timespec time_stamp = getTime();
@@ -263,7 +263,7 @@ void publishData()
   imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
 
   RCSOFTCHECK(rcl_publish(&temp_pub, &temp_msg, NULL));
-  // RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
+  RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
   RCSOFTCHECK(rcl_publish(&odom_pub, &odom_msg, NULL));
 }
 
@@ -314,7 +314,7 @@ bool createEntities()
     &odom_pub,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
-    "odom"
+    "odom/unfiltered"
   ));
   RCCHECK(rclc_publisher_init_default(
     &temp_pub,
@@ -414,22 +414,22 @@ void setup()
   state = Waiting_agent;
   pinMode(13, OUTPUT);
 
-  // bool imu_setup = imu.init();
-  // if(!imu_setup)
-  // {
-  //   while (1)
-  //   {
-  //     for(int i=0; i<3; i++)
-  //     {
-  //       digitalWrite(13, HIGH);
-  //       delay(100);
-  //       digitalWrite(13, LOW);
-  //       delay(100);
-  //     }
-  //   delay(1000);
-  //   }
+  bool imu_setup = imu.init();
+  if(!imu_setup)
+  {
+    while (1)
+    {
+      for(int i=0; i<3; i++)
+      {
+        digitalWrite(13, HIGH);
+        delay(100);
+        digitalWrite(13, LOW);
+        delay(100);
+      }
+    delay(1000);
+    }
 
-  // }
+  }
 
 
   attachInterrupt(pA, encoderCount, FALLING);
