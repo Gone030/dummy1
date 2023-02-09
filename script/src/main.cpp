@@ -32,6 +32,7 @@ rcl_publisher_t jointstate_pub;
 rcl_publisher_t odom_pub;
 rcl_publisher_t imu_pub;
 rcl_publisher_t temp_pub;
+rcl_publisher_t steer_pub;
 
 rclc_executor_t executor;
 rclc_support_t support;
@@ -55,6 +56,7 @@ sensor_msgs__msg__JointState jointstate_msg;
 
 sensor_msgs__msg__Imu imu_msg;
 geometry_msgs__msg__Twist temp_msg;
+std_msgs__msg__Float64 steer_msg;
 
 
 enum states
@@ -237,6 +239,7 @@ void move()
   // rpm_msg.data = motor_vel;
   motor.run(motor_vel);
   float current_steering_angle = motor.steer(req_anguler_vel_z);
+  steer_msg.data = current_steering_angle;
   Calculates::vel current_vel = calculates.get_velocities(current_steering_angle, ecd_rpm);
 
   temp_msg.linear.x = current_vel.linear_x; // test publish
@@ -265,6 +268,7 @@ void publishData()
   RCSOFTCHECK(rcl_publish(&temp_pub, &temp_msg, NULL));
   RCSOFTCHECK(rcl_publish(&imu_pub, &imu_msg, NULL));
   RCSOFTCHECK(rcl_publish(&odom_pub, &odom_msg, NULL));
+  RCSOFTCHECK(rcl_publish(&steer_pub, &steer_msg, NULL));
 }
 
 void controlcallback(rcl_timer_t *timer, int64_t last_call_time)
@@ -340,6 +344,12 @@ bool createEntities()
     ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
     "imu/data"
   ));
+  RCCHECK(rclc_publisher_init_default(
+    &steer_pub,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
+    "steer_angle"
+  ))
 
   const unsigned int timeout = 20;
   RCCHECK(rclc_timer_init_default(
@@ -398,6 +408,7 @@ bool destroyEntities()
   // rcl_publisher_fini(&rpm_pub, &node);
   rcl_publisher_fini(&odom_pub, &node);
   rcl_publisher_fini(&temp_pub, &node);
+  rcl_publisher_fini(&steer_pub, &node);
   rcl_subscription_fini(&twist_sub, &node);
   // rcl_subscription_fini(&p_sub, &node);
   // rcl_subscription_fini(&i_sub, &node);
