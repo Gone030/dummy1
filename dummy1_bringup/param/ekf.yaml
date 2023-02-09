@@ -16,9 +16,9 @@ ekf_filter_node:
         #vroll , vpitch, vyaw,
         #ax    , ay    , az
         odom0: odom/unfiltered
-        odom0_config: [true, true, false,
+        odom0_config: [false, false, false,
                        false, false, false,
-                       false, false, false,
+                       true, true, false,
                        false, false, true,
                        false, false, false]
 

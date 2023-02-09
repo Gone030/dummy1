@@ -5,8 +5,7 @@ import rclpy
 
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist
-
+from std_msgs.msg import Float64
 class jointstatepub(Node):
     def __init__(self):
         super().__init__('dummy1_joint_states')
@@ -16,7 +15,7 @@ class jointstatepub(Node):
             Odometry, 'odom', self.sub_callback_odom, qos_profile
         )
         self.subCmd = self.create_subscription(
-            Twist, 'cmd_vel', self.sub_callback_cmd, qos_profile
+            Float64, 'steer_angle', self.sub_callback_cmd, qos_profile
         )
         self.pubjs = self.create_publisher(JointState, 'joint_states', qos_profile)
 
@@ -37,7 +36,7 @@ class jointstatepub(Node):
         timestamp_now = self.get_clock().now().to_msg()
         joint_states_pos.header.stamp = timestamp_now
 
-        anguler_steer = msg.angular.z
+        anguler_steer = msg.data
 
         joint_states_pos.name = ["front_L_wheel_joint", "front_R_wheel_joint"]
         joint_states_pos.position = [anguler_steer, anguler_steer]
