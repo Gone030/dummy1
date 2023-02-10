@@ -33,7 +33,8 @@ setup(
     entry_points={
         'console_scripts': [
             'Odomtf = dummy1_bringup.src.odomtf:main',
-            'jointstatepub = dummy1_bringup.src.jointstatepub:main'
+            'jointstatepub = dummy1_bringup.src.jointstatepub:main',
+            'teleop = dummy1_bringup.src.dummy1_teleop_twist_keyboard:main'
         ],
     },
 )
