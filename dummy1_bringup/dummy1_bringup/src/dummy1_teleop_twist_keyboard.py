@@ -6,15 +6,15 @@ from pynput.keyboard import Key, Listener
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 
-# import os
-# import select
-# import sys
+import os
+import select
+import sys
 
-# if os.name == 'nt':
-#     import msvcrt
-# else:
-#     import termios
-#     import tty
+if sys.platform == 'win32':
+    import msvcrt
+else:
+    import termios
+    import tty
 
 
 moveBindings = {
@@ -33,13 +33,15 @@ stepBindings = {
     'i': (0.02, 0),
     ',': (-0.02, 0),
     'o': (0, 0.1),
-    '.': (0, 0.1),
+    '.': (0, -0.1),
+    'k': (0.05, 0),
+    'l': (0, 0.5),
 }
 
 msg = """
 
 -----------------------------------
-==== Press key to move Dummy1 =====
+========== Move Around! ===========
 -----------------------------------
     q   w   e           i  o
     a   s   d
@@ -62,8 +64,9 @@ class teleop(Node):
     def __init__(self):
         super().__init__('dummy1_teleop_twist_keyboard')
         qos_profile = QoSProfile(depth = 10)
-        # if os.name != 'nt':
-        #     self.settings = termios.tcgetattr(sys.stdin)
+
+        self.settings = self.saveTerminalSettings()
+
         self.keys = set()
         self.status = 0
         self.target_linear_vel = 0.0
@@ -99,27 +102,34 @@ class teleop(Node):
         return input
 
     def on_press(self, key):
+        tty.setraw(sys.stdin.fileno())
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
 
         if key == Key.esc:
             return False
 
-
-        if key == 'w' and 'x' in self.keys:
-            self.keys.remove('x')
-        if key == 'a' and 'd' in self.keys:
-            self.keys.remove('d')
-        if key == 'x' and 'w' in self.keys:
-            self.keys.remove('w')
-        if key == 'd' and 'a' in self.keys:
-            self.keys.remove('a')
-
-        self.keys.add(key)
-        self.move()
-    def on_release(self, key):
-        key = key.char
-        if key in self.keys:
-            self.keys.remove(key)
+        if hasattr(key, 'char'):
+            key = key.char
+            self.keys.add(key)
             self.move()
+
+    def on_release(self, key):
+        tty.setraw(sys.stdin.fileno())
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
+        if hasattr(key, 'char'):
+            key = key.char
+            if key in self.keys:
+                self.keys.remove(key)
+                self.move()
+    def saveTerminalSettings(self):
+        if sys.platform == 'win32':
+            return None
+        return termios.tcgetattr(sys.stdin)
+
+    def restoreTerminalSettings(self, old_settings):
+        if sys.platform == 'win32':
+            return
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
     def move(self):
         try:
@@ -128,13 +138,16 @@ class teleop(Node):
                 self.target_linear_vel = moveBindings[keys][0]
                 self.target_angular_vel = moveBindings[keys][1]
             elif keys in stepBindings.keys():
-                self.linear_step_size = self.constrain(stepBindings[keys][0], - self.max_linear_vel , self.max_linear_vel)
-                self.angular_step_size = self.constrain(stepBindings[keys][1], -self.max_angular_vel, self.max_angular_vel)
-
-                print(vels(self.speed, self.turn))
+                self.speed = self.constrain(self.speed + stepBindings[keys][0], - self.max_linear_vel , self.max_linear_vel)
+                self.turn = self.constrain(self.turn + stepBindings[keys][1], -self.max_angular_vel, self.max_angular_vel)
+                if keys == 'k':
+                    self.speed = 0.05
+                if keys == 'l':
+                    self.turn = 0.5
+                print(self.vels(self.speed, self.turn))
                 if (self.status == 10):
                     print(msg)
-                self.status = (self.status + 1)
+                self.status = (self.status + 1) % 11
             else:
                 self.target_linear_vel = 0.0
                 self.target_angular_vel = 0.0
@@ -146,13 +159,8 @@ class teleop(Node):
         except Exception as err:
             print(e)
             print(err)
-        finally:
-            twist = Twist()
-            twist.linear.x = 0.0
-            twist.angular.z = 0.0
-            self.pub.publish(twist)
 
-            # termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
 
 def main(args = None):
     rclpy.init(args=args)
@@ -160,6 +168,10 @@ def main(args = None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
+        twist = Twist()
+        twist.linear.x = 0.0
+        twist.angular.z = 0.0
+        node.pub.publish(twist)
         node.destroy_node()
         rclpy.shutdown()
 if __name__=='__main__':
