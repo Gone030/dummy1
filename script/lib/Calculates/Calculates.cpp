@@ -14,7 +14,7 @@ double Calculates::CalculateRpm(double linear_x)
     double linear_x_mins = linear_x * 60.0 / gear_ratio_; // Gear ratio (temp)
     double x_rpm = linear_x_mins / wheel_round_;
 
-    dcmotor_rpm = x_rpm;
+    dcmotor_rpm = constrain(x_rpm, -max_rpm_, max_rpm_ );
 
     return dcmotor_rpm;
 }
