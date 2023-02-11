@@ -4,3 +4,4 @@ test
 log
 install
 build
+*.pyc

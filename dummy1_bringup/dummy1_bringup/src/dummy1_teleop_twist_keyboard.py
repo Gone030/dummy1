@@ -1,18 +1,21 @@
 from __future__ import print_function
-import select, os
-import sys
-
-if os.name == 'nt':
-    import msvcrt
-else:
-    import termios
-    import tty
 
 import rclpy
 from geometry_msgs.msg import Twist
 from pynput.keyboard import Key, Listener
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
+
+# import os
+# import select
+# import sys
+
+# if os.name == 'nt':
+#     import msvcrt
+# else:
+#     import termios
+#     import tty
+
 
 moveBindings = {
     'w': (1  ,0),
@@ -59,6 +62,8 @@ class teleop(Node):
     def __init__(self):
         super().__init__('dummy1_teleop_twist_keyboard')
         qos_profile = QoSProfile(depth = 10)
+        # if os.name != 'nt':
+        #     self.settings = termios.tcgetattr(sys.stdin)
         self.keys = set()
         self.status = 0
         self.target_linear_vel = 0.0
@@ -94,16 +99,10 @@ class teleop(Node):
         return input
 
     def on_press(self, key):
-        if os.name =='nt':
-            msvcrt.getch()
-        else:
-            tty.setraw(sys.stdin.fileno())
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
 
         if key == Key.esc:
             return False
-        if not hasattr(key, 'char'):
-            return True
+
 
         if key == 'w' and 'x' in self.keys:
             self.keys.remove('x')
@@ -153,7 +152,7 @@ class teleop(Node):
             twist.angular.z = 0.0
             self.pub.publish(twist)
 
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+            # termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
 
 def main(args = None):
     rclpy.init(args=args)
@@ -164,6 +163,4 @@ def main(args = None):
         node.destroy_node()
         rclpy.shutdown()
 if __name__=='__main__':
-    if os.name != 'nt':
-        settings = termios.tcgetattr(sys.stdin)
     main()
