@@ -20,7 +20,7 @@ control::control(int motor_pin_F, int motor_pin_R, int motor_pin_F_EN, int motor
 
     steering_servo.attach(servo_pin_);
 
-    steering_servo.write(88);
+    steering_servo.write(87);
 }
 
 void control::run(double pwm_duty)
@@ -60,7 +60,7 @@ float control::steer(float steering_angle)
     float servo_angle ;
     steering_angle = constrain(steering_angle, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);
     servo_angle = mapFloat(steering_angle, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE, MAX_SERVO_ANGLE, MIN_SERVO_ANGLE) * (180/PI);
-    steering_servo.write((int)servo_angle);
+    steering_servo.write((int)servo_angle-3);
 
     return steering_angle;
 }
