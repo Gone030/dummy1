@@ -50,7 +50,7 @@ def generate_launch_description():
       executable='micro_ros_agent',
       name='micro_ros_agent',
       output='screen',
-      conditions=IfCondition(LaunchConfiguration("use_micro_ros")),
+      condition=IfCondition(LaunchConfiguration("use_micro_ros")),
       arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
     ),
     Node(
