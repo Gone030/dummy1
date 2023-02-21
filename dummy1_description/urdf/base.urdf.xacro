@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <robot name="dummy1" xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:property name="base_width" value="0.200"/>
-    <xacro:property name="base_length" value="0.445"/>
+    <xacro:property name="base_width" value="0.130"/>
+    <xacro:property name="base_length" value="0.185"/>
     <xacro:property name="base_height" value="0.039"/>
 
-    <xacro:property name="wheel_radius" value="0.073"/>
-    <xacro:property name="wheel_width" value="0.04"/>
+    <xacro:property name="wheel_radius" value="0.0365"/>
+    <xacro:property name="wheel_width" value="0.035"/>
     <xacro:property name="wheel_ygap" value="0.025"/>
     <xacro:property name="wheel_zoff" value="0.025"/>
-    <xacro:property name="wheel_xoff" value="0.183"/>
+    <xacro:property name="wheel_xoff" value="0.175"/>
     <xacro:property name="bar_yoff" value="0.06"/>
 
     <material name="Gray">
@@ -33,12 +33,13 @@
         <joint name="base_joint" type="fixed">
             <parent link="base_footprint"/>
             <child link="base_link"/>
-            <origin xyz="0.0 0.0 ${-(wheel_radius+wheel_zoff)}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.0 0.0 ${wheel_radius + wheel_zoff}" rpy="0.0 0.0 0.0"/>
         </joint>
         <link name="laser">
             <visual>
+                <!-- <origin xyz="0.0 0.0 0.0" /> -->
                 <geometry>
-                    <cylinder radius="0.04" length="0.04"/>
+                    <cylinder radius="0.0325" length="0.04"/>
                 </geometry>
             </visual>
         </link>
@@ -62,7 +63,7 @@
             <parent link="base_link"/>
             <child link="${prefix}_link"/>
             <axis xyz="0.0 1.0 0.0"/>
-            <origin xyz="${x_reflect*wheel_xoff} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="${x_reflect*wheel_xoff/2} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
         </joint>
     </xacro:macro>
         <!-- <xacro:wheel prefix="driveFwhl_l" x_reflect="1" y_reflect="1"/> -->
@@ -131,7 +132,7 @@
         <parent link="front_L_bar_link"/>
         <child link="front_L_wheel_link"/>
         <axis xyz="0.0 1.0 0.0"/>
-        <origin xyz="${wheel_xoff} ${(base_width/2-bar_yoff+(wheel_width/2))} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
+        <origin xyz="${wheel_xoff/2} ${(base_width/2-bar_yoff+(wheel_width/2))} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
     </joint>
 
     <link name="front_R_wheel_link">
@@ -147,7 +148,7 @@
         <parent link="front_R_bar_link"/>
         <child link="front_R_wheel_link"/>
         <axis xyz="0.0 1.0 0.0"/>
-        <origin xyz="${wheel_xoff} ${-1*((base_width/2)-bar_yoff+(wheel_width/2))} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
+        <origin xyz="${wheel_xoff/2} ${-1*((base_width/2)-bar_yoff+(wheel_width/2))} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
     </joint>
     <link name="ackermann_bar_link">
         <visual>
@@ -167,18 +168,18 @@
     <link name="imu_link">
         <visual>
             <geometry>
-                <box size="0.1 0.1 0.1"/>
+                <box size="0.01 0.01 0.01"/>
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <box size="0.1 0.1 0.1"/>
+                <box size="0.01 0.01 0.01"/>
             </geometry>
         </collision>
     </link>
     <joint name="imu_joint" type="fixed">
         <parent link="base_link"/>
         <child link="imu_link"/>
-        <origin xyz="0.0 0.0 0.1"/>
+        <origin xyz="0.035 0.0 0.05"/>
     </joint>
 </robot>
