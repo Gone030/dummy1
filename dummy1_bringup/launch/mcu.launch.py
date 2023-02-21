@@ -18,11 +18,17 @@ def generate_launch_description():
   ekf_config_path = PathJoinSubstitution(
     [FindPackageShare('dummy1_bringup'), 'param', 'ekf.yaml']
   )
+
   return LaunchDescription([
     DeclareLaunchArgument(
       name='serial_port',
       default_value='/dev/ttyACM0',
       description='Serial port'
+    ),
+    DeclareLaunchArgument(
+      name= 'use_micro_ros',
+      default_value='true',
+      description= 'use micro ros'
     ),
     Node(
       package='robot_localization',
@@ -44,6 +50,7 @@ def generate_launch_description():
       executable='micro_ros_agent',
       name='micro_ros_agent',
       output='screen',
+      conditions=IfCondition(LaunchConfiguration("use_micro_ros")),
       arguments=['serial', '--dev', LaunchConfiguration("serial_port")]
     ),
     Node(
