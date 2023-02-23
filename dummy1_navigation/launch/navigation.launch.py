@@ -33,6 +33,11 @@ def generate_launch_description():
             default_value= 'false',
             description= 'use sim tiome enable'
         ),
+        DeclareLaunchArgument(
+            name='rviz',
+            default_value='false',
+            description='Run rviz'
+        ),
 
         DeclareLaunchArgument(
             name= 'map',
