@@ -14,7 +14,7 @@ class Imu
         float gyro_cov_ = 0.00001f;
         geometry_msgs__msg__Vector3 accel_;
         geometry_msgs__msg__Vector3 gyro_;
-        int16_t offset_[3] = {0, 0, 0};
+        int16_t offset_[3];
         sensor_msgs__msg__Imu imu_msg_;
         geometry_msgs__msg__Vector3 gyro_cal_;
         void calibrateGyro()
@@ -46,6 +46,11 @@ class Imu
             imu_msg_.header.frame_id.size = sizeof(frame_name);
             strcpy(imu_msg_.header.frame_id.data, "imu_link");
 
+        }
+        ~Imu()
+        {}
+        void init()
+        {
             Wire.begin();
             Wire.beginTransmission(0x68);
             Wire.write(107);
@@ -72,8 +77,6 @@ class Imu
 
             calibrateGyro();
         }
-        ~Imu()
-        {}
 
         geometry_msgs__msg__Vector3 getacc()
         {
@@ -112,17 +115,13 @@ class Imu
 
         sensor_msgs__msg__Imu operation()
         {
-            getacc();
-            getgyro();
+            geometry_msgs__msg__Vector3 acc__ = getacc();
+            geometry_msgs__msg__Vector3 gyro__ = getgyro();
 
 
-            imu_msg_.angular_velocity.x = gyro_rate_[0];
-            imu_msg_.angular_velocity.y = gyro_rate_[1];
-            imu_msg_.angular_velocity.z = gyro_rate_[2];
+            imu_msg_.angular_velocity = gyro__;
 
-            imu_msg_.linear_acceleration.x = acc_rate_[0];
-            imu_msg_.linear_acceleration.y = acc_rate_[1];
-            imu_msg_.linear_acceleration.z = acc_rate_[2];
+            imu_msg_.linear_acceleration = acc__;
 
             imu_msg_.angular_velocity_covariance[0] = gyro_cov_;
             imu_msg_.angular_velocity_covariance[4] = gyro_cov_;
