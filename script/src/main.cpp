@@ -15,6 +15,7 @@
 
 
 #include "Imu.h"
+// #include "imu_test.h"
 #include "Calculates.h"
 #include "Motor.h"
 #include "PID.h"
@@ -28,7 +29,6 @@ rcl_subscription_t twist_sub;
 // rcl_publisher_t enc_pub;
 // rcl_publisher_t rpm_pub;
 
-rcl_publisher_t jointstate_pub;
 rcl_publisher_t odom_pub;
 rcl_publisher_t imu_pub;
 rcl_publisher_t temp_pub;
@@ -256,6 +256,7 @@ void publishData()
   // RCSOFTCHECK(rcl_publish(&enc_pub, &goal_vel, NULL));
   // RCSOFTCHECK(rcl_publish(&rpm_pub, &rpm_msg, NULL));
   imu_msg = imu.getdata();
+  // imu_msg = imu.operation();
   odom_msg = odom.getOdomData();
 
   struct timespec time_stamp = getTime();
