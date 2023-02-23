@@ -8,7 +8,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-MAP_NAME='home'
+MAP_NAME='map'
 
 def generate_launch_description():
     nav2_launch_path = PathJoinSubstitution(
