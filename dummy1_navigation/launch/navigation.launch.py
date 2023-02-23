@@ -55,7 +55,7 @@ def generate_launch_description():
             name= 'rviz2',
             output= 'screen',
             arguments= ['-d', rviz_config_path],
-            Condition= IfCondition(LaunchConfiguration("rviz")),
+            condition= IfCondition(LaunchConfiguration("rviz")),
             parameters=[{'use_sim_time': LaunchConfiguration("sim")}]
         )
     ])
