@@ -112,7 +112,7 @@ controller_server:
       stateful: True
     # Regulated pure pursuit controller parameters
     FollowPath:
-      plugin: "nav2_regulated_pure_pursuit_controller::RagulatedPurePursuitController"
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       desired_linear_vel: 0.2362
       lookahead_dist: 1.0 #temp, To tune to get Adaptive Regulated Pure Pursuit behabiors
       min_lookahead_dist: 0.5 #temp
