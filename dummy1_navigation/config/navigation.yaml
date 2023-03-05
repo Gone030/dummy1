@@ -17,7 +17,7 @@ amcl:
     global_frame_id: "map"
     lambda_short: 0.1
     laser_likelihood_max_dist: 2.0
-    laser_max_range: 100.0
+    laser_max_range: -1.0
     laser_min_range: -1.0
     laser_model_type: "likelihood_field"
     max_beams: 60
@@ -110,48 +110,34 @@ controller_server:
       xy_goal_tolerance: 0.25
       yaw_goal_tolerance: 0.25
       stateful: True
-    # DWB parameters
+    # Regulated pure pursuit controller parameters
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True
-      min_vel_x: 0.0
-      min_vel_y: 0.0
-      max_vel_x: 0.35
-      max_vel_y: 0.0
-      max_vel_theta: 1.0
-      min_speed_xy: 0.0
-      max_speed_xy: 0.35
-      min_speed_theta: 0.0
-      # Add high threshold velocity for turtlebot 3 issue.
-      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-      acc_lim_x: 2.5
-      acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: 0.0
-      decel_lim_theta: -3.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.25
-      short_circuit_trajectory_evaluation: True
-      stateful: True
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
-      RotateToGoal.lookahead_time: -1.0
+      plugin: "nav2_regulated_pure_pursuit_controller::RagulatedPurePursuitController"
+      desired_linear_vel: 0.2362
+      lookahead_dist: 1.0 #temp, To tune to get Adaptive Regulated Pure Pursuit behabiors
+      min_lookahead_dist: 0.5 #temp
+      max_lookahead_dist: 1.5 #temp
+      lookahead_time: 1.0 #temp
+      # rotate_to_heading_angular_vel:
+      # rotate_to_heading_min_angle:
+      approach_velocity_scaling_dist: 0.55
+      cost_scaling_dist: 0.55
+      cost_scaling_gain: 0.9
+      max_allowed_time_to_collision_up_to_carrot: 1.0
+      max_angulat_accel: 0.787
+      min_approach_linear_velocity: 0.05
+      regulated_linear_scaling_min_radius: 0.9
+      regulated_linear_scaling_min_speed: 0.1
+      transform_tolerance: 0.4
+      allow_reversing: true
+      use_cost_regulated_linear_velocity_scaling: true
+      use_interpolation: true
+      use_rotate_to_heading: false
+      use_velocity_scaled_lookahead_dist: false
+      use_regulated_linear_velocity_scaling: true
+
+
+
 
 controller_server_rclcpp_node:
   ros__parameters:
@@ -182,6 +168,7 @@ local_costmap:
         origin_z: 0.0
         z_resolution: 0.05
         z_voxels: 16
+
         max_obstacle_height: 2.0
         mark_threshold: 0
         observation_sources: scan base_scan
