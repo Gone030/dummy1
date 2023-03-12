@@ -56,7 +56,7 @@ def generate_launch_description():
     Node(
       package='dummy1_bringup',
       executable='jointstatepub',
-      name='jointstattepub',
+      name='jointstatepub',
       output='screen'
     ),
     # Node(
