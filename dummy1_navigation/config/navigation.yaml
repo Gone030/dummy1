@@ -114,8 +114,8 @@ controller_server:
     FollowPath:
       plugin: "teb_local_planner::TebLocalPlannerROS"
       footprint_model.type: line
-      footprint_model.line_start: [-0.0925,0]
-      footprint_model.line_end: [0.0925,0]
+      footprint_model.line_start: [-0.0925, 0]
+      footprint_model.line_end: [0.0925, 0]
       min_obstacle_dist: 0.1
       inflation_dist: 0.1
       costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
