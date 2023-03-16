@@ -22,7 +22,7 @@ find_package(slam_toolbox REQUIRED)
 
 install(
   DIRECTORY launch rviz config maps
-  DESTINATION share/${PROJECT_NAME}
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 if(BUILD_TESTING)
