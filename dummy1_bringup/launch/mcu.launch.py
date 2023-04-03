@@ -21,11 +21,6 @@ def generate_launch_description():
 
   return LaunchDescription([
     DeclareLaunchArgument(
-      name='serial_port',
-      default_value='/dev/ttyACM0',
-      description='Serial port'
-    ),
-    DeclareLaunchArgument(
       name= 'use_micro_ros',
       default_value='true',
       description= 'use micro ros'
@@ -35,16 +30,9 @@ def generate_launch_description():
       executable='ekf_node',
       name='ekf_filter_node',
       output='screen',
-      parameters=[
-        ekf_config_path
-      ],
+      parameters=[ekf_config_path],
       remappings=[("odometry/filtered", "odom")]
     ),
-    # Node(
-    #   package='map_odom_broadcaster',
-    #   executable='map_odom_broadcaster',
-    #   name='map_odom_broadcaster',
-    #   output='screen'),
     Node(
       package='micro_ros_agent',
       executable='micro_ros_agent',
@@ -59,12 +47,6 @@ def generate_launch_description():
       name='jointstatepub',
       output='screen'
     ),
-    # Node(
-    #   package='dummy1_bringup',
-    #   executable='Odomtf',
-    #   name='Odomtf',
-    #   output='screen'
-    # ),
     Node(
       package='ydlidar_ros2_driver',
       executable='ydlidar_ros2_driver_node',
