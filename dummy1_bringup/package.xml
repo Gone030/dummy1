@@ -16,7 +16,6 @@
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>tf2</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
-  <exec_depend>map_odom_broadcaster</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
