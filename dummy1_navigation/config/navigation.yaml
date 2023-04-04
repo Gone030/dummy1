@@ -119,7 +119,7 @@ controller_server:
       enable_homotopy_class_planning: True
       enable_multithreading: True
       optimization_verbose: False
-      teb_autosize: True
+      teb_autosize: 1.0
       min_samples: 3
       max_samples: 20
       max_global_plan_lookahead_dist: 1.0
