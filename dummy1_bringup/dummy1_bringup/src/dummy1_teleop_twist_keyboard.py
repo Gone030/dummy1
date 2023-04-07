@@ -50,7 +50,7 @@ a/d : increase/decrease angular velocity (max value : +- 0.5233)
 i/< : increase/decrease linear step size (default : 0.02)
 o/> : increase/decrease angular step size (default : 0.1)
 
-ctl + c : quit
+Other keys : quit
 """
 
 e = """
@@ -125,8 +125,8 @@ def main():
             else:
                 target_linear_vel = 0.0
                 target_angular_vel = 0.0
-                if (keys == '\x03'):
-                    break
+
+                break
 
             twist = Twist()
             twist.linear.x =  target_linear_vel *  speed
