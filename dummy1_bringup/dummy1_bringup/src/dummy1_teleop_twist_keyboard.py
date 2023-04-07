@@ -125,6 +125,8 @@ def main():
             else:
                 target_linear_vel = 0.0
                 target_angular_vel = 0.0
+                if (keys == '\x03'):
+                    break
 
             twist = Twist()
             twist.linear.x =  target_linear_vel *  speed
