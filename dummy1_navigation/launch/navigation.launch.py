@@ -31,7 +31,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             name= 'sim',
             default_value= 'false',
-            description= 'use sim tiome enable'
+            description= 'use sim time enable'
         ),
         DeclareLaunchArgument(
             name='rviz',
