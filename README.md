@@ -4,9 +4,10 @@
 Dummy1은 RC카 프레임을 사용한 Car-like 로봇입니다. Ros2 galactic을 구동하기 위해 Jetson nano를 사용하고 모터 및 센서 구동을 위한 MCU로 Arduino Due를 채택해 사용하고 있습니다.
 MCU의 코드 및 자세한 설명은 [dummy1_mcu](https://github.com/Gone030/dummy1_mcu) 에서 확인할 수 있습니다.
 
-Dummy1은 느리지만 멈추지 않는 지속적인 개발이란 모토로, 현재(2023.4 기준)는 SLAM의 최적화를 진행하고 있습니다. 최종 목표로 안정적인 자율주행과 SLAM을 계획하고 있습니다.
+Dummy1은 느리지만 멈추지 않는 지속적인 개발이란 모토로, Slam_toolbox 패키지를 이용한 slam을 성공했으며, 향후 Ros2에 대한 이해도를 높힌 뒤 Navigation 까지 시도해 볼 예정입니다.
 
-(여기에 움짤 추가 예정)
+(3배속 재생입니다.)
+[3배속 재생](https://github.com/Gone030/dummy1/assets/89852937/34b6e18c-2987-4499-9ed3-3822e4cc4810)
 
 ## 개발 기간
 * 2022.4 ~ Present
@@ -50,7 +51,4 @@ Lidar와 Micro-ros Agent, Robot_localization 패키지가 동작하며 MCU와 Ro
 [SLAM Toolbox](https://github.com/SteveMacenski/slam_toolbox) 실행 :
     ros2 launch dummy1_navigation slam.launch.py
 `rviz`를 통해 작성되는 지도를 확인할 수 있습니다.
-## 진행도 및 확인된 문제
 
-(지도 틀어지는 움짤 추가 예정)
-간헐적으로 회전 중 지도가 틀어지는 현상이 발생해 수정중에 있습니다.
