@@ -7,10 +7,15 @@ MCU의 코드 및 자세한 설명은 [dummy1_mcu](https://github.com/Gone030/du
 Dummy1은 느리지만 멈추지 않는 지속적인 개발이란 모토로, Slam_toolbox 패키지를 이용한 slam을 성공했으며, 향후 Ros2에 대한 이해도를 높힌 뒤 Navigation 까지 시도해 볼 예정입니다.
 
 (3배속 재생입니다.)
-[3배속 재생](https://github.com/Gone030/dummy1/assets/89852937/34b6e18c-2987-4499-9ed3-3822e4cc4810)
+
+https://github.com/Gone030/dummy1/assets/89852937/ab614d2d-06ac-457e-a768-a9f669c35ab4
+
+
+
+
 
 ## 개발 기간
-* 2022.4 ~ Present
+* 2022.4 ~ 2023.6
 
 ## 개발 환경
 * Robot Computer : `Ubuntu 20.04` , `Ros2 Galactic`
