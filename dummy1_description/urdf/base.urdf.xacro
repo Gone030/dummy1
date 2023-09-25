@@ -17,67 +17,113 @@
     <material name="Green">
         <color rgba="0.0 1.0 0.0 1.0"/>
     </material>
-        <link name="base_footprint"/>
+    <link name="base_footprint"/>
 
-        <link name="base_link">
-            <visual>
-                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-                <geometry>
-                    <box size="${base_length} ${base_width} ${base_height}"/>
-                </geometry>
-                <material name="Cyan">
-                    <color rgba="0 1.0 1.0 1.0"/>
-                </material>
-            </visual>
-        </link>
-        <joint name="base_joint" type="fixed">
-            <parent link="base_footprint"/>
-            <child link="base_link"/>
-            <origin xyz="0.0 0.0 ${wheel_radius + wheel_zoff}" rpy="0.0 0.0 0.0"/>
-        </joint>
-        <link name="laser">
-            <visual>
-                <!-- <origin xyz="0.0 0.0 0.0" /> -->
-                <geometry>
-                    <cylinder radius="0.0325" length="0.04"/>
-                </geometry>
-            </visual>
-        </link>
-        <joint name="laser_joint" type="fixed">
-            <origin xyz="0.065 0.0 0.0960" />
-            <parent link="base_link"/>
-            <child link="laser"/>
-        </joint>
-
-    <xacro:macro name="wheel" params="prefix x_reflect y_reflect">
-        <link name="${prefix}_link">
-            <visual>
-                <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 0.0"/>
-                <geometry>
-                    <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
-                </geometry>
-                <material name="Gray"/>
-            </visual>
-        </link>
-        <joint name="${prefix}_joint" type="continuous">
-            <parent link="base_link"/>
-            <child link="${prefix}_link"/>
-            <axis xyz="0.0 1.0 0.0"/>
-            <origin xyz="${x_reflect*wheel_xoff/2} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
-        </joint>
-    </xacro:macro>
-        <!-- <xacro:wheel prefix="driveFwhl_l" x_reflect="1" y_reflect="1"/> -->
-        <!-- <xacro:wheel prefix="driveFwhl_r" x_reflect="1" y_reflect="-1"/> -->
-        <xacro:wheel prefix="driveRwhl_l" x_reflect="-1" y_reflect="1"/>
-        <xacro:wheel prefix="driveRwhl_r" x_reflect="-1" y_reflect="-1"/>
-    <link name="steer_link">
+    <link name="base_link">
         <visual>
-            <origin xyz="-0.02 0.0 0.0" />
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <box size="0.03 0.01995 0.005"/>
+                <box size="${base_length} ${base_width} ${base_height}"/>
+            </geometry>
+            <material name="Cyan">
+                <color rgba="0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+    </link>
+
+    <gazebo reference="base_link">
+        <material>Gazebo/Black</material>
+    </gazebo>
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0.0 0.0 ${wheel_radius + wheel_zoff}" rpy="0.0 0.0 0.0"/>
+    </joint>
+    <link name="laser">
+        <visual>
+            <!-- <origin xyz="0.0 0.0 0.0" /> -->
+            <geometry>
+                <cylinder radius="0.0325" length="0.04"/>
+            </geometry>
+        </visual>
+    </link>
+    <joint name="laser_joint" type="fixed">
+        <origin xyz="0.065 0.0 0.0960" />
+        <parent link="base_link"/>
+        <child link="laser"/>
+    </joint>
+
+    <gazebo reference="laser">
+        <sensor name="lidar" type="ray">
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <update_rate>10</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>5000</samples>
+                        <resolution>0.500000</resolution>
+                        <min_angle>-3.14159</min_angle>
+                        <max_angle>3.14159</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.12</min>
+                    <max>10.0</max>
+                    <resolution>0.015</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                </noise>
+            </ray>
+            <plugin name="scan" filename="libgazebo_ros_ray_sensor.so">
+                <ros>
+                    <remapping>~/out:=scan</remapping>
+                </ros>
+                <output_type>sensor_msgs/LaserScan</output_type>
+                <frame_name>laser</frame_name>
+            </plugin>
+        </sensor>
+    </gazebo>
+    <gazebo reference="laser">
+        <mu1>0.01</mu1>
+        <mu2>0.01</mu2>
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+
+<xacro:macro name="wheel" params="prefix x_reflect y_reflect">
+    <link name="${prefix}_link">
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
             </geometry>
             <material name="Gray"/>
         </visual>
+    </link>
+    <joint name="${prefix}_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="${prefix}_link"/>
+        <axis xyz="0.0 1.0 0.0"/>
+        <origin xyz="${x_reflect*wheel_xoff/2} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
+    </joint>
+</xacro:macro>
+    <!-- <xacro:wheel prefix="driveFwhl_l" x_reflect="1" y_reflect="1"/> -->
+    <!-- <xacro:wheel prefix="driveFwhl_r" x_reflect="1" y_reflect="-1"/> -->
+    <xacro:wheel prefix="driveRwhl_l" x_reflect="-1" y_reflect="1"/>
+    <xacro:wheel prefix="driveRwhl_r" x_reflect="-1" y_reflect="-1"/>
+<link name="steer_link">
+    <visual>
+        <origin xyz="-0.02 0.0 0.0" />
+        <geometry>
+            <box size="0.03 0.01995 0.005"/>
+        </geometry>
+        <material name="Gray"/>
+    </visual>
     </link>
     <joint name="steer_joint" type="revolute">
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -165,6 +211,37 @@
         <child link="ackermann_bar_link"/>
         <origin xyz="-0.04 0.0 0.0"/>
     </joint>
+
+    <gazebo>
+        <plugin name="gazebo_ros_ackerman_drive" filename="libgazebo_ros_ackermann_drive.so">
+            <ros>
+                <namespace>/demo</namespace>
+                <parameter name="cmd_vel" value="cmd_vel"/>
+                <parameter name="odom" value="odom"/>
+            </ros>
+            <update_rate>50.0</update_rate>
+
+            <front_left_joint>front_L_wheel_joint</front_left_joint>
+            <front_right_joint>front_R_wheel_joint</front_right_joint>
+            <rear_left_joint>driveRwhl_l_joint</rear_left_joint>
+            <rear_right_joint>driveRwhl_r_joint</rear_right_joint>
+
+            <left_steering_joint>front_L_bar_joint</left_steering_joint>
+            <right_steering_joint>front_R_bar_joint</right_steering_joint>
+
+            <max_steer>0.5233</max_steer>
+            <max_steering_angle>2.0944</max_steering_angle>
+            <max_speed>40</max_speed>
+
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>true</publish_odom_tf>
+            <publish_wheel_tf>true</publish_wheel_tf>
+
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+        </plugin>
+    </gazebo>
+
     <link name="imu_link">
         <visual>
             <geometry>
@@ -182,4 +259,83 @@
         <child link="imu_link"/>
         <origin xyz="0.035 0.0 0.05"/>
     </joint>
+
+    <gazebo reference="imu_link">
+        <gravity>true</gravity>
+        <sensor name="imu" type="imu">
+            <always_on>true</always_on>
+            <update_rate>50.0</update_rate>
+            <visualize>true</visualize>
+            <imu>
+                <orientation>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-3</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-3</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-3</stddev>
+                        </noise>
+                    </z>
+                </orientation>
+                <angular_velocity>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </z>
+                </angular_velocity>
+                <linear_acceleration>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </z>
+                </linear_acceleration>
+            </imu>
+            <plugin name="dummy1_imu" filename="libgazebo_ros_imu_sensor.so">
+                <initial_orientation_as_reference>false</initial_orientation_as_reference>
+                <frame_name>imu_link</frame_name>
+                <ros>
+                    <namespace>/imu</manespace>
+                    <remapping>~/out:=data</remapping>
+                </ros>
+            </plugin>
+        </sensor>
+    </gazebo>
 </robot>
