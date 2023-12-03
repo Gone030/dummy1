@@ -1,8 +1,8 @@
 ekf_filter_node:
     ros__parameters:
-        frequency: 50.0
-        two_d_mode: true
-        publish_tf: true
+        frequency: 50.0 # 필터가 추정치를 출력하는 주파수
+        two_d_mode: true # 추정치에서 3d값을 사용하지 않음. 해당 프로잭트는 평지에서 이뤄지기 때문에 활성화
+        publish_tf: true # tf 토픽을 퍼블리싱 할 경우 활성화. (tf : 프레임을 추적하는 토픽)
 
         map_frame: map
         odom_frame: odom
@@ -15,6 +15,9 @@ ekf_filter_node:
         #vx    , vy    , vz,
         #vroll , vpitch, vyaw,
         #ax    , ay    , az
+
+        #TODO: Twist 데이터 추가
+
         odom0: odom/unfiltered
         odom0_config: [false, false, false,
                        false, false, false,
