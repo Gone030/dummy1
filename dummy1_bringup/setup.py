@@ -32,8 +32,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'jointstatepub = dummy1_bringup.src.jointstatepub:main',
-            'teleop = dummy1_bringup.src.dummy1_teleop_twist_keyboard:main'
+            'jointstatepub = src.jointstatepub:main',
+            'teleop = src.dummy1_teleop_twist_keyboard:main'
         ],
     },
 )

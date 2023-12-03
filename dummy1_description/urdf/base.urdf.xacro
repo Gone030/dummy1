@@ -29,6 +29,18 @@
                 <color rgba="0 1.0 1.0 1.0"/>
             </material>
         </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.0 0.0 0.0"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="15.0"/>
+            <inertia ixx="0.11440125" ixy="0.0" ixz="0.0"
+                     iyy="0.133625" iyz="0.0"
+                     izz="0.02302625"/>
+        </inertial>
     </link>
 
     <gazebo reference="base_link">
@@ -42,11 +54,22 @@
     </joint>
     <link name="laser">
         <visual>
-            <!-- <origin xyz="0.0 0.0 0.0" /> -->
+            <origin xyz="0.0 0.0 0.0" />
             <geometry>
                 <cylinder radius="0.0325" length="0.04"/>
             </geometry>
         </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" />
+            <geometry>
+                <cylinder radius="0.0325" length="0.04"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.125"/>
+            <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+        </inertial>
     </link>
     <joint name="laser_joint" type="fixed">
         <origin xyz="0.065 0.0 0.0960" />
@@ -104,6 +127,19 @@
             </geometry>
             <material name="Gray"/>
         </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+            <mass value="1.3729096e+00"/>
+            <inertia ixx="8.7002718e-03" ixy="-4.7576583e-05" ixz="1.1160499e-04"
+                        iyy="8.6195418e-03" iyz="-3.5422299e-06"
+                        izz="1.4612727e-02" />
+        </inertial>
     </link>
     <joint name="${prefix}_joint" type="continuous">
         <parent link="base_link"/>
@@ -116,42 +152,74 @@
     <!-- <xacro:wheel prefix="driveFwhl_r" x_reflect="1" y_reflect="-1"/> -->
     <xacro:wheel prefix="driveRwhl_l" x_reflect="-1" y_reflect="1"/>
     <xacro:wheel prefix="driveRwhl_r" x_reflect="-1" y_reflect="-1"/>
-<link name="steer_link">
-    <visual>
-        <origin xyz="-0.02 0.0 0.0" />
-        <geometry>
-            <box size="0.03 0.01995 0.005"/>
-        </geometry>
-        <material name="Gray"/>
-    </visual>
+    <!-- <link name="steer_link">
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.04 0.01 0.03"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0.0 0.0"/>
+            <mass value="20.0"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        </inertial>
+        <collision>
+            <origin xyz="0 -0.01 0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.0 0.0 0.0"/>
+            </geometry>
+        </collision>
     </link>
     <joint name="steer_joint" type="revolute">
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         <parent link="base_link"/>
         <child link="steer_link"/>
-        <axis xyz="0.0 0.0 1"/>
-        <limit lower="-0.5" upper="0.5" effort="100.0" velocity="10.0"/>
-    </joint>
+        <axis xyz="0.0 0.0 0.0"/>
+        <limit lower="-0.5" upper="0.5" effort="10.0" velocity="10.0"/>
+    </joint> -->
     <link name="front_L_bar_link">
         <visual>
-            <origin xyz="-0.02 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.047298 -0.02 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <box size="0.03 0.01995 0.005"/>
+                <box size="0.03 0.01995 0.03"/>
             </geometry>
             <material name="Green"/>
         </visual>
+        <inertial>
+            <origin xyz="0.047298 0.0 0.0"/>
+            <mass value="20.0"/>
+            <inertia ixx="2" ixy="0" ixz="0" iyy="2" iyz="0" izz="2"/>
+        </inertial>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.047298 0.0 0.0"/>
+            </geometry>
+        </collision>
     </link>
     <link name="front_R_bar_link">
         <visual>
-            <origin xyz="-0.02 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.047298 0.02 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <box size="0.03 0.01995 0.005"/>
+                <box size="0.03 0.01995 0.03"/>
             </geometry>
             <material name="Green"/>
         </visual>
+        <inertial>
+            <origin xyz="0.047298 0.0 0.0"/>
+            <mass value="20.0"/>
+            <inertia ixx="2" ixy="0" ixz="0" iyy="2" iyz="0" izz="2"/>
+        </inertial>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.047298 0.0 0.0"/>
+            </geometry>
+        </collision>
     </link>
     <joint name="front_R_bar_joint" type="revolute">
-        <origin xyz="0.0 ${-bar_yoff} 0.0" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.0 -${bar_yoff} 0.0" rpy="0.0 0.0 0.0"/>
         <parent link="base_link"/>
         <child link="front_R_bar_link"/>
         <axis xyz="0.0 0.0 1"/>
@@ -173,6 +241,19 @@
             </geometry>
             <material name="Gray"/>
         </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+            <mass value="1.3729096e+00"/>
+            <inertia ixx="8.7002718e-03" ixy="-4.7576583e-05" ixz="1.1160499e-04"
+                        iyy="8.6195418e-03" iyz="-3.5422299e-06"
+                        izz="1.4612727e-02" />
+        </inertial>
     </link>
     <joint name="front_L_wheel_joint" type="continuous">
         <parent link="front_L_bar_link"/>
@@ -189,6 +270,19 @@
             </geometry>
             <material name="Gray"/>
         </visual>
+        <collision>
+            <origin rpy="${pi/2} 0 0"/>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+            </geometry>
+        </collision>
+        <inertial>
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+                <mass value="1.3729096e+00"/>
+                <inertia ixx="8.7002718e-03" ixy="-4.7576583e-05" ixz="1.1160499e-04"
+                         iyy="8.6195418e-03" iyz="-3.5422299e-06"
+                         izz="1.4612727e-02" />
+        </inertial>
     </link>
     <joint name="front_R_wheel_joint" type="continuous">
         <parent link="front_R_bar_link"/>
@@ -196,28 +290,12 @@
         <axis xyz="0.0 1.0 0.0"/>
         <origin xyz="${wheel_xoff/2} ${-1*((base_width/2)-bar_yoff+(wheel_width/2))} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
     </joint>
-    <link name="ackermann_bar_link">
-        <visual>
-            <geometry>
-                <box size="0.015 0.15 0.01"/>
-            </geometry>
-            <material name="Green"/>
-        </visual>
-    </link>
-    <joint name="ackermann_joint" type="revolute">
-        <limit lower="-0.5" upper="0.5" effort="100" velocity="10"/>
-        <axis xyz="0.0 0.0 1"/>
-        <parent link="steer_link"/>
-        <child link="ackermann_bar_link"/>
-        <origin xyz="-0.04 0.0 0.0"/>
-    </joint>
 
     <gazebo>
         <plugin name="gazebo_ros_ackerman_drive" filename="libgazebo_ros_ackermann_drive.so">
             <ros>
-                <namespace>/demo</namespace>
-                <parameter name="cmd_vel" value="cmd_vel"/>
-                <parameter name="odom" value="odom"/>
+                <remapping> name="cmd_vel" value="cmd_vel"</remapping>
+                <remapping> name="odom" value="odom/unfiltered"</remapping>
             </ros>
             <update_rate>50.0</update_rate>
 
@@ -228,14 +306,22 @@
 
             <left_steering_joint>front_L_bar_joint</left_steering_joint>
             <right_steering_joint>front_R_bar_joint</right_steering_joint>
+            <!-- <steering_wheel_joint>steer_joint</steering_wheel_joint> -->
 
             <max_steer>0.5233</max_steer>
             <max_steering_angle>2.0944</max_steering_angle>
-            <max_speed>40</max_speed>
+            <max_speed>10</max_speed>
 
             <publish_odom>true</publish_odom>
             <publish_odom_tf>true</publish_odom_tf>
             <publish_wheel_tf>true</publish_wheel_tf>
+
+            <left_steering_pid_gain>1500 0 1</left_steering_pid_gain>
+            <left_steering_i_range>0 0</left_steering_i_range>
+            <right_steering_pid_gain>1500 0 1</right_steering_pid_gain>
+            <right_steering_i_range>0 0</right_steering_i_range>
+            <linear_velocity_pid_gain>1000 0 1</linear_velocity_pid_gain>
+            <linear_velocity_i_range>0 0</linear_velocity_i_range>
 
             <odometry_frame>odom</odometry_frame>
             <robot_base_frame>base_link</robot_base_frame>
@@ -332,7 +418,7 @@
                 <initial_orientation_as_reference>false</initial_orientation_as_reference>
                 <frame_name>imu_link</frame_name>
                 <ros>
-                    <namespace>/imu</manespace>
+                    <namespace>/imu</namespace>
                     <remapping>~/out:=data</remapping>
                 </ros>
             </plugin>
