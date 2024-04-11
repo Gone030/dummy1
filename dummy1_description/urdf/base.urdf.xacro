@@ -148,36 +148,9 @@
         <origin xyz="${x_reflect*wheel_xoff/2} ${y_reflect*(base_width/2+wheel_ygap)} ${-wheel_zoff}" rpy="0.0 0.0 0.0"/>
     </joint>
 </xacro:macro>
-    <!-- <xacro:wheel prefix="driveFwhl_l" x_reflect="1" y_reflect="1"/> -->
-    <!-- <xacro:wheel prefix="driveFwhl_r" x_reflect="1" y_reflect="-1"/> -->
     <xacro:wheel prefix="driveRwhl_l" x_reflect="-1" y_reflect="1"/>
     <xacro:wheel prefix="driveRwhl_r" x_reflect="-1" y_reflect="-1"/>
-    <!-- <link name="steer_link">
-        <visual>
-            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-            <geometry>
-                <box size="0.04 0.01 0.03"/>
-            </geometry>
-        </visual>
-        <inertial>
-            <origin xyz="0.0 0.0 0.0"/>
-            <mass value="20.0"/>
-            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-        </inertial>
-        <collision>
-            <origin xyz="0 -0.01 0" rpy="0.0 0.0 0.0"/>
-            <geometry>
-                <box size="0.0 0.0 0.0"/>
-            </geometry>
-        </collision>
-    </link>
-    <joint name="steer_joint" type="revolute">
-        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-        <parent link="base_link"/>
-        <child link="steer_link"/>
-        <axis xyz="0.0 0.0 0.0"/>
-        <limit lower="-0.5" upper="0.5" effort="10.0" velocity="10.0"/>
-    </joint> -->
+
     <link name="front_L_bar_link">
         <visual>
             <origin xyz="0.047298 -0.02 0.0" rpy="0.0 0.0 0.0"/>
